@@ -1,7 +1,9 @@
-streamlit
-openai
-requests
-pandas
-python-dotenv
+streamlit==1.35.0
+openai==1.30.0
+requests==2.31.0
+pandas==2.2.2
+python-dotenv==1.0.1
 supabase==1.2.0
-xlsxwriter
+httpx==0.24.1
+httpcore==0.17.3
+xlsxwriter==3.2.0
