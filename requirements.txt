@@ -3,5 +3,5 @@ openai
 requests
 pandas
 python-dotenv
-supabase
+supabase==2.3.4
 xlsxwriter
