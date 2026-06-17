@@ -91,6 +91,7 @@ EXPECTED_HEADER = [
     "image_url",
     "mp3_path",
     "cover_path",
+    "lyrics",
 ]
 
 # ================== 2) PROMPT HỆ THỐNG ==================
@@ -303,39 +304,42 @@ def ensure_history_schema():
 
 
 def sb_upload_bytes(bucket: str, path: str, data_bytes: bytes, content_type: str) -> Optional[str]:
-    """Upload bytes lên Supabase Storage và trả về public URL. Trả về None nếu lỗi."""
+    """Upload bytes len Supabase Storage va tra ve public URL."""
     if not supabase or not data_bytes:
         return None
     try:
-        # Thử upload; upsert=True để ghi đè nếu file đã tồn tại
         supabase.storage.from_(bucket).upload(
-            path,
-            data_bytes,
+            path=path,
+            file=data_bytes,
             file_options={"content-type": content_type, "upsert": "true"},
         )
     except Exception as upload_err:
-        # Một số phiên bản supabase-py raise lỗi nếu file đã tồn tại dù có upsert
-        # Thử xoá rồi upload lại
-        try:
-            supabase.storage.from_(bucket).remove([path])
-            supabase.storage.from_(bucket).upload(
-                path,
-                data_bytes,
-                file_options={"content-type": content_type},
-            )
-        except Exception as retry_err:
-            st.warning(f"Upload Supabase thất bại ({path}): {retry_err}")
+        err_msg = str(upload_err)
+        if "already exists" in err_msg or "Duplicate" in err_msg or "23505" in err_msg:
+            try:
+                supabase.storage.from_(bucket).remove([path])
+                supabase.storage.from_(bucket).upload(
+                    path=path,
+                    file=data_bytes,
+                    file_options={"content-type": content_type},
+                )
+            except Exception as retry_err:
+                st.warning(f"Upload Supabase that bai ({path}): {retry_err}")
+                return None
+        else:
+            st.warning(f"Upload Supabase that bai ({path}): {upload_err}")
             return None
-
     try:
         pub = supabase.storage.from_(bucket).get_public_url(path)
-        # Tương thích cả supabase-py v1 (dict) và v2 (string)
+        if isinstance(pub, str):
+            return pub
         if isinstance(pub, dict):
-            return pub.get("publicUrl") or pub.get("data", {}).get("publicUrl")
+            return pub.get("publicUrl") or pub.get("data", {}).get("publicUrl") or ""
         return str(pub)
     except Exception as url_err:
-        st.warning(f"Không lấy được public URL ({path}): {url_err}")
+        st.warning(f"Khong lay duoc public URL ({path}): {url_err}")
         return None
+
 
 
 def sb_upload_cover(bucket: str, path: str, img_bytes: bytes) -> Optional[str]:
@@ -933,9 +937,10 @@ with tab_make:
                     "instrumental": instrumental,
                     "track_index": i,
                     "audio_url": audio_url_final,
-                    "image_url": image_url_final,
-                    "mp3_path": mp3_path if not audio_url_pub else "",  # Nếu đã có Supabase URL thì bỏ local path
-                    "cover_path": cover_path if not cover_url_pub else "",
+                    "image_url": "",        # Khong luu hinh de tiet kiem dung luong
+                    "mp3_path": mp3_path if not audio_url_pub else "",
+                    "cover_path": "",       # Khong luu hinh
+                    "lyrics": st.session_state.lyrics,  # Luu loi bai hat
                 }
                 write_history_row(row)
                 log_prompt_to_csv(row)
