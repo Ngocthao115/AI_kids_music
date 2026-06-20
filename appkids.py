@@ -56,17 +56,26 @@ os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
 client = OpenAI(api_key=OPENAI_API_KEY)
 HEADERS = {"Authorization": f"Bearer {SUNO_API_KEY}", "Content-Type": "application/json"}
 
-# Kết nối Supabase (tuỳ chọn)
+# Kết nối Supabase 
 supabase = None
 supabase_status = "❌"
+_sb_headers = {}
 if SUPABASE_URL and SUPABASE_KEY:
     try:
-        from supabase import create_client
-
-        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+        # Test kết nối bằng REST API
+        _sb_headers = {
+            "apikey": SUPABASE_KEY,
+            "Authorization": f"Bearer {SUPABASE_KEY}",
+        }
+        _test = requests.get(
+            f"{SUPABASE_URL}/rest/v1/tracks?limit=1",
+            headers=_sb_headers,
+            timeout=10,
+        )
+        supabase = True  # đánh dấu đã kết nối
         supabase_status = "✅"
     except Exception as e:
-        st.warning(f"Không khởi tạo được Supabase client: {e}")
+        st.warning(f"Không kết nối được Supabase: {e}")
 
 # Local output
 OUTPUT_DIR = "outputs"
