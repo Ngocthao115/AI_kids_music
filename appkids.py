@@ -807,7 +807,7 @@ with st.sidebar:
     st.caption(f"Supabase: **{supabase_status}**")
 
 # Header
-st.title("🎵 Kids Song AI")
+st.title("🎵 NHẠC AI THIẾU NHI - MẦM NON")
 st.markdown(
     '<span class="badge">🏫 Dành riêng cho Giáo viên Mầm non</span>&nbsp;'
     '<span class="badge">✨ Tạo nhạc thiếu nhi bằng AI</span>&nbsp;'
