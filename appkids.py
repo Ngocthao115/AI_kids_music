@@ -18,6 +18,7 @@ from openai import OpenAI
 # ================== 1) CONFIG & ENV ==================
 load_dotenv()
 
+
 def get_secret(name: str, default=None):
     try:
         return st.secrets.get(name, os.getenv(name, default))
@@ -138,6 +139,8 @@ def build_user_prompt(
         "- Định dạng đầu ra có nhãn [Verse]/[Chorus]/[Bridge].\n"
     )
 
+
+
 def generate_lyrics(
     topic: str,
     target_words: Optional[List[str]] = None,
@@ -162,6 +165,8 @@ def generate_lyrics(
         max_tokens=700,
     )
     return resp.choices[0].message.content.strip()
+
+
 
 def refine_lyrics(original_text: str, instruction: str = "") -> str:
     if not original_text.strip():
@@ -270,6 +275,8 @@ def _friendly_suno_error(response: requests.Response) -> RuntimeError:
         return RuntimeError("Yêu cầu bị từ chối. Kiểm tra quyền truy cập API Suno.")
     return RuntimeError(f"Suno request failed ({response.status_code}): {msg}")
 
+
+
 def suno_generate_song(prompt: str, title: str, style: str, instrumental: bool = False) -> str:
     endpoint = f"{SUNO_API_BASE}/api/v1/generate"
     payload = {
@@ -288,6 +295,7 @@ def suno_generate_song(prompt: str, title: str, style: str, instrumental: bool =
     if data.get("code") != 200 or not data.get("data", {}).get("taskId"):
         raise RuntimeError("Suno generate failed: " + json.dumps(data, ensure_ascii=False))
     return data["data"]["taskId"]
+
 
 
 def suno_poll(task_id: str, timeout_sec: int = 360, interval_sec: int = 8):
@@ -361,6 +369,7 @@ def ensure_history_schema():
             newrow = {k: old.get(k, "") for k in EXPECTED_HEADER}
             w.writerow(newrow)
     os.replace(tmp, HISTORY_CSV)
+
 
 
 def sb_upload_bytes(bucket: str, path: str, data_bytes: bytes, content_type: str) -> Optional[str]:
@@ -745,6 +754,35 @@ st.session_state.setdefault("verses", 2)
 st.session_state.setdefault("bridge", True)
 
 # Sidebar
+
+# Chủ đề theo tháng - Chương trình GDMN Bộ GD&ĐT
+CHU_DE_THANG = {
+    "Tháng 9 — Trường mầm non": {"mo_ta": "Trường mầm non thân yêu của bé", "tu_khoa": "Trường lớp, cô giáo, bạn bè, sân chơi, đồ chơi"},
+    "Tháng 10 — Bản thân": {"mo_ta": "Cơ thể bé và những điều bé thích", "tu_khoa": "Tay chân, mặt mũi, tên bé, sở thích, cảm xúc"},
+    "Tháng 11 — Gia đình": {"mo_ta": "Gia đình yêu thương của bé", "tu_khoa": "Ba mẹ, ông bà, anh chị em, ngôi nhà, yêu thương"},
+    "Tháng 12 — Nghề nghiệp": {"mo_ta": "Các nghề nghiệp trong xã hội", "tu_khoa": "Bác sĩ, cô giáo, chú công an, nông dân, kỹ sư"},
+    "Tháng 1-2 — Thế giới động vật": {"mo_ta": "Các con vật gần gũi với bé", "tu_khoa": "Chó mèo, gà vịt, bướm sâu, rừng núi, biển cả"},
+    "Tháng 3 — Thế giới thực vật": {"mo_ta": "Cây cối hoa lá xung quanh bé", "tu_khoa": "Hoa lá, cây xanh, rau củ, mùa xuân, vườn cây"},
+    "Tháng 3-4 — Phương tiện giao thông": {"mo_ta": "Các phương tiện giao thông bé biết", "tu_khoa": "Xe ô tô, xe đạp, máy bay, tàu thuyền, an toàn"},
+    "Tháng 4-5 — Quê hương Đất nước": {"mo_ta": "Tình yêu quê hương đất nước Việt Nam", "tu_khoa": "Quê hương, Việt Nam, cờ đỏ, sao vàng, biển đảo"},
+    "Tháng 5-6 — Mùa hè": {"mo_ta": "Mùa hè vui tươi và kỳ nghỉ hè", "tu_khoa": "Nắng vàng, biển xanh, kem mát, bướm hoa, nghỉ hè"},
+}
+
+AGE_GROUPS = [
+    "Nhà trẻ (0-3 tuổi)",
+    "Mẫu giáo bé (3-4 tuổi)",
+    "Mẫu giáo nhỡ (4-5 tuổi)",
+    "Mẫu giáo lớn (5-6 tuổi)",
+]
+
+LINH_VUC = [
+    "🏃 Phát triển thể chất",
+    "🧠 Phát triển nhận thức",
+    "🗣️ Phát triển ngôn ngữ",
+    "🎨 Phát triển thẩm mỹ",
+    "❤️ Phát triển tình cảm - Xã hội",
+]
+
 with st.sidebar:
     st.markdown("## 👩‍🏫 Hướng dẫn nhanh")
     st.markdown(
@@ -782,33 +820,6 @@ tab_make, tab_poem, tab_library, tab_stats, tab_history, tab_settings = st.tabs(
     ["✨ Tạo bài hát", "📖 Thơ/Truyện → Nhạc", "📚 Thư viện", "📊 Thống kê", "🗂️ Lịch sử", "⚙️ Cài đặt"]
 )
 
-# Chủ đề theo tháng - Chương trình GDMN Bộ GD&ĐT
-CHU_DE_THANG = {
-    "Tháng 9 — Trường mầm non": {"mo_ta": "Trường mầm non thân yêu của bé", "tu_khoa": "Trường lớp, cô giáo, bạn bè, sân chơi, đồ chơi"},
-    "Tháng 10 — Bản thân": {"mo_ta": "Cơ thể bé và những điều bé thích", "tu_khoa": "Tay chân, mặt mũi, tên bé, sở thích, cảm xúc"},
-    "Tháng 11 — Gia đình": {"mo_ta": "Gia đình yêu thương của bé", "tu_khoa": "Ba mẹ, ông bà, anh chị em, ngôi nhà, yêu thương"},
-    "Tháng 12 — Nghề nghiệp": {"mo_ta": "Các nghề nghiệp trong xã hội", "tu_khoa": "Bác sĩ, cô giáo, chú công an, nông dân, kỹ sư"},
-    "Tháng 1-2 — Thế giới động vật": {"mo_ta": "Các con vật gần gũi với bé", "tu_khoa": "Chó mèo, gà vịt, bướm sâu, rừng núi, biển cả"},
-    "Tháng 3 — Thế giới thực vật": {"mo_ta": "Cây cối hoa lá xung quanh bé", "tu_khoa": "Hoa lá, cây xanh, rau củ, mùa xuân, vườn cây"},
-    "Tháng 3-4 — Phương tiện giao thông": {"mo_ta": "Các phương tiện giao thông bé biết", "tu_khoa": "Xe ô tô, xe đạp, máy bay, tàu thuyền, an toàn"},
-    "Tháng 4-5 — Quê hương Đất nước": {"mo_ta": "Tình yêu quê hương đất nước Việt Nam", "tu_khoa": "Quê hương, Việt Nam, cờ đỏ, sao vàng, biển đảo"},
-    "Tháng 5-6 — Mùa hè": {"mo_ta": "Mùa hè vui tươi và kỳ nghỉ hè", "tu_khoa": "Nắng vàng, biển xanh, kem mát, bướm hoa, nghỉ hè"},
-}
-
-AGE_GROUPS = [
-    "Nhà trẻ (0-3 tuổi)",
-    "Mẫu giáo bé (3-4 tuổi)",
-    "Mẫu giáo nhỡ (4-5 tuổi)",
-    "Mẫu giáo lớn (5-6 tuổi)",
-]
-
-LINH_VUC = [
-    "🏃 Phát triển thể chất",
-    "🧠 Phát triển nhận thức",
-    "🗣️ Phát triển ngôn ngữ",
-    "🎨 Phát triển thẩm mỹ",
-    "❤️ Phát triển tình cảm - Xã hội",
-]
 
 # ================== TAB 1: TẠO BÀI HÁT ==================
 with tab_make:
