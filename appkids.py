@@ -600,7 +600,7 @@ def show_audio_from_row(row: pd.Series, key_suffix: str = ""):
         st.audio(audio_url, format="audio/mp3")
 
 # ================== 4) UI / THEME ==================
-st.set_page_config(page_title="Kids Song AI", page_icon="🎵", layout="centered")
+st.set_page_config(page_title="NHẠC AI THIẾU NHI - MẦM NON", page_icon="🎵", layout="centered")
 
 
 def add_bg_from_local(image_path: str, alpha: float = 0.85, size: str = "1300px auto", position: str = "top center"):
@@ -815,7 +815,7 @@ with st.sidebar:
     st.caption(f"Supabase: **{supabase_status}**")
 
 # Header
-st.title("🎵 Kids Song AI")
+st.title("🎵 NHẠC AI THIẾU NHI - MẦM NON")
 st.markdown(
     '<span class="badge">🏫 Dành riêng cho Giáo viên Mầm non</span>&nbsp;'
     '<span class="badge">✨ Tạo nhạc thiếu nhi bằng AI</span>&nbsp;'
@@ -1761,7 +1761,7 @@ st.markdown(
     """
 <hr style="margin:24px 0; border:none; border-top:1px solid #e6e8f5;">
 <div style="text-align:center; margin-top:8px; line-height:1.7;">
-  <div style="font-weight:800; font-size:18px;">© Kids Song AI • Dành cho Giáo viên mầm non</div>
+  <div style="font-weight:800; font-size:18px;">© NHẠC AI THIẾU NHI • Dành cho Giáo viên mầm non</div>
   <div style="font-size:15px; color:#64748b;"> Facebook: Ngọc Thảo – <a href=\"mailto:ms.nthaotran@gmail.com\">ms.nthaotran@gmail.com</a></div>
 </div>
 """,
