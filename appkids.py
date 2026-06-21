@@ -72,8 +72,13 @@ if SUPABASE_URL and SUPABASE_KEY:
             headers=_sb_headers,
             timeout=10,
         )
-        supabase = True  # đánh dấu đã kết nối
-        supabase_status = "✅"
+        # Chấp nhận 200 (có data) hoặc 206 hoặc cả 404 nếu bảng rỗng
+        # Quan trọng: status < 500 nghĩa là kết nối OK
+        if _test.status_code < 500:
+            supabase = True  # đánh dấu đã kết nối
+            supabase_status = "✅"
+        else:
+            st.warning(f"Supabase trả về lỗi {_test.status_code}: {_test.text[:200]}")
     except Exception as e:
         st.warning(f"Không kết nối được Supabase: {e}")
 
@@ -428,12 +433,25 @@ def sb_save_track_metadata(row: dict) -> bool:
         headers = {
             **_sb_headers,
             "Content-Type": "application/json",
-            "Prefer": "resolution=merge-duplicates",
+            "Prefer": "return=representation,resolution=merge-duplicates",
         }
-        clean_row = {k: (str(v) if v is not None else "") for k, v in row.items()}
+        # Chỉ giữ field có giá trị, bỏ rỗng tránh lỗi schema
+        clean_row = {}
+        for k, v in row.items():
+            if v is None or v == "":
+                continue
+            if isinstance(v, bool):
+                clean_row[k] = str(v).lower()
+            else:
+                clean_row[k] = str(v)
         r = requests.post(url, headers=headers, json=clean_row, timeout=30)
-        return r.status_code in (200, 201)
-    except Exception:
+        if r.status_code in (200, 201):
+            return True
+        else:
+            st.warning(f"⚠️ Không lưu metadata Supabase: {r.status_code} — {r.text[:300]}")
+            return False
+    except Exception as e:
+        st.warning(f"⚠️ Lỗi lưu Supabase metadata: {e}")
         return False
 
 
@@ -1157,9 +1175,9 @@ with tab_make:
                     "instrumental": instrumental,
                     "track_index": i,
                     "audio_url": audio_url_final,
-                    "image_url": "",
+                    "image_url": image_url_final,
                     "mp3_path": mp3_path if not audio_url_pub else "",
-                    "cover_path": "",
+                    "cover_path": cover_path,
                     "lyrics": st.session_state.lyrics,
                     "age_group": st.session_state.get("age_group_tab1", "Mẫu giáo bé (3-4 tuổi)"),
                     "theme_month": st.session_state.get("theme_select", ""),
@@ -1311,11 +1329,11 @@ with tab_poem:
                         "style": poem_style,
                         "language": "vi",
                         "verses": "",
-                        "bridge": True,
-                        "instrumental": poem_instrumental,
+                        "bridge": "true",
+                        "instrumental": str(poem_instrumental).lower(),
                         "track_index": i,
                         "audio_url": audio_url_final,
-                        "image_url": "",
+                        "image_url": t.get("imageUrl") or "",
                         "mp3_path": mp3_path if not audio_url_pub else "",
                         "cover_path": "",
                         "lyrics": st.session_state.lyrics,
@@ -1701,27 +1719,54 @@ with tab_settings:
 
     if supabase:
         st.success("✅ Đã kết nối Supabase qua REST API.")
-        btn_list = st.button("🔎 Xem file MP3 trong bucket")
+
+        col_sb1, col_sb2 = st.columns(2)
+        with col_sb1:
+            btn_list = st.button("🔎 Xem file MP3 trong bucket")
+        with col_sb2:
+            btn_list_tracks = st.button("📋 Xem bảng tracks")
+
         if btn_list:
             try:
+                # Đúng format: list object trong bucket, prefix rỗng = list tất cả
                 url = f"{SUPABASE_URL}/storage/v1/object/list/{SUPABASE_BUCKET}"
                 r = requests.post(
                     url,
                     headers={**_sb_headers, "Content-Type": "application/json"},
-                    json={"prefix": "mp3/", "limit": 50},
+                    json={"prefix": "", "limit": 100, "offset": 0},
                     timeout=15,
                 )
                 if r.status_code == 200:
                     files = r.json()
-                    st.write(f"📁 Có **{len(files)} file MP3** trong bucket")
-                    for f in files[:20]:
-                        name = f.get("name", "")
-                        pub_url = f"{SUPABASE_URL}/storage/v1/object/public/{SUPABASE_BUCKET}/mp3/{name}"
+                    mp3_files = [f for f in files if str(f.get("name","")).endswith(".mp3")]
+                    st.write(f"📁 Có **{len(mp3_files)} file MP3** trong bucket `{SUPABASE_BUCKET}`")
+                    for fi in mp3_files[:20]:
+                        name = fi.get("name", "")
+                        pub_url = f"{SUPABASE_URL}/storage/v1/object/public/{SUPABASE_BUCKET}/{name}"
                         st.markdown(f"- 🎵 `{name}` → [nghe]({pub_url})")
+                    if len(mp3_files) == 0:
+                        st.info("Bucket trống — chưa có file MP3 nào được upload.")
                 else:
-                    st.warning(f"Lỗi đọc bucket: {r.status_code} {r.text[:200]}")
+                    st.warning(f"Lỗi đọc bucket: {r.status_code} {r.text[:300]}")
             except Exception as e:
                 st.warning(f"Lỗi đọc bucket: {e}")
+
+        if btn_list_tracks:
+            try:
+                url = f"{SUPABASE_URL}/rest/v1/tracks?order=time.desc&limit=10"
+                r = requests.get(url, headers=_sb_headers, timeout=15)
+                if r.status_code == 200:
+                    rows = r.json()
+                    st.write(f"📋 Có **{len(rows)} bản ghi** mới nhất trong bảng `tracks`")
+                    if rows:
+                        import pandas as pd
+                        st.dataframe(pd.DataFrame(rows)[["time","title","audio_url"]].head(10), use_container_width=True)
+                    else:
+                        st.info("Bảng tracks chưa có dữ liệu.")
+                else:
+                    st.warning(f"Lỗi đọc bảng tracks: {r.status_code} {r.text[:300]}")
+            except Exception as e:
+                st.warning(f"Lỗi đọc tracks: {e}")
     else:
         st.info("Chưa kết nối Supabase. App vẫn lưu local bình thường.")
 
