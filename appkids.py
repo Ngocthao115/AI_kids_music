@@ -60,7 +60,8 @@ os.makedirs(MP3_DIR, exist_ok=True); os.makedirs(COVER_DIR, exist_ok=True); os.m
 HISTORY_CSV = os.path.join(OUTPUT_DIR, "tracks.csv")
 EXPECTED_HEADER = ["time","title","topic","keywords","style","language","verses","bridge",
     "instrumental","track_index","audio_url","image_url","mp3_path","cover_path",
-    "lyrics","age_group","theme_month","source_type"]
+    "lyrics","age_group","theme_month","source_type",
+    "content_type","content_text","scenes","teaching_guide","skill_goal"]
 
 # ── Chủ đề kỹ năng / thái độ / học tập ──
 CONTENT_THEMES = {
@@ -125,8 +126,8 @@ STYLE_MAP = {
 
 DEFAULT_LYRICS_SYSTEM = (
     "Bạn là chuyên gia sáng tác nhạc thiếu nhi và nhà sư phạm mầm non giàu kinh nghiệm. "
-    "Sáng tác lời bài hát cho trẻ 3-6 tuổi. Mỗi câu hát 5-10 từ. "
-    "Ngôn ngữ giáo dục, nhân văn. Vần điệu rõ ràng, điệp khúc dễ nhớ. "
+    "Sáng tác lời bài hát cho trẻ 0-6 tuổi. Đối với trẻ lứa tuổi 0-3 tuổi, mỗi câu hát từ 5 từ, đoạn ngắn, vần điệu đơn giản. Đối với trẻ lứa tuổi 3-6 tuổi, mỗi câu hát 5-10 từ. "
+    "Ngôn ngữ giáo dục, nhân văn. Vần điệu gieo vần, rõ ràng, điệp khúc dễ nhớ. "
     "Mặc định dùng [Verse] và [Chorus]. CHỈ dùng cấu trúc rap khi yêu cầu rõ.")
 
 # ════════════════════════════════════════════════════
@@ -153,7 +154,7 @@ def refine_lyrics(original_text, instruction=""):
 
 def poem_to_song(poem_text, age_group="Mẫu giáo (3-6 tuổi)", style_hint=""):
     r = client.chat.completions.create(model="gpt-4o-mini",
-        messages=[{"role":"system","content":"Chuyển thơ/truyện thiếu nhi thành lời bài hát. Cấu trúc [Verse]/[Chorus]/[Bridge], vần điệu rõ, câu 5-10 từ."},
+        messages=[{"role":"system","content":"Chuyển thơ/truyện thiếu nhi thành lời bài hát. Cấu trúc [Verse]/[Chorus]/[Bridge], vần điệu rõ, câu 5-10 từ trở lên."},
                   {"role":"user","content":f"Lứa tuổi: {age_group}\nPhong cách: {style_hint}\n\n{poem_text}\n\nChuyển thành lời bài hát."}],
         temperature=0.8, max_tokens=800)
     return r.choices[0].message.content.strip()
@@ -163,17 +164,17 @@ def generate_poem(topic, age_group, skill_goal, poem_type="tho"):
     if poem_type == "tho":
         system = (
             "Bạn là nhà thơ thiếu nhi Việt Nam giàu kinh nghiệm sư phạm mầm non. "
-            "Viết bài thơ ngắn cho trẻ mầm non: 2 - 3 khổ cho trẻ từ 0-3 tuổi và 4-6 khổ cho trẻ từ 3-6 tuổi, mỗi khổ 4 câu, vần điệu rõ ràng, "
-            "ngôn ngữ trong sáng, gieo vần, hình ảnh sinh động, dễ thuộc, mang thông điệp giáo dục tích cực. "
+            "Viết bài thơ ngắn cho trẻ mầm non: đối với lứa tuổi trẻ từ 0-3 tuổi có 2-3 khổ thơ, đối với lứa tuổi trẻ từ 3-5 tuổi có 4-6 khổ thơ, mỗi khổ 4 câu, vần điệu gieo vần rõ ràng, "
+            "ngôn ngữ trong sáng, hình ảnh sinh động, dễ thuộc, mang thông điệp giáo dục tích cực. "
             "Không có nội dung tiêu cực, bạo lực. Thêm tiêu đề bài thơ ở đầu."
         )
         user = f"Chủ đề: {topic}\nMục tiêu giáo dục: {skill_goal}\nĐộ tuổi: {age_group}\n\nViết bài thơ thiếu nhi."
     else:
         system = (
             "Bạn là nhà văn chuyên viết truyện thiếu nhi Việt Nam. "
-            "Viết câu chuyện ngắn 200 từ cho trẻ từ 0-3 tuổi và 300-400 từ cho trẻ từ 3-6 tuổi: có nhân vật dễ thương (con vật, bé nhỏ), "
+            "Viết câu chuyện ngắn có từ 150-200 từ cho trẻ từ 0-3 tuổi và có 300-400 từ cho trẻ từ 3-6 tuổi: có nhân vật dễ thương (người hoặc bất kỳ sự vật nào có thể nhân hóa được(ví dụ: con vật, cây cối, quả, hiện tượng tự nhiên...), "
             "tình huống gần gũi, kết thúc có thông điệp tích cực rõ ràng. "
-            "Chia thành 2 đoạn ngắn cho trẻ từ 0-3 tuổi và 3-4 đoạn ngắn cho trẻ từ 3-6 tuổi. Ngôn ngữ đơn giản, hình ảnh sinh động. Thêm tiêu đề ở đầu."
+            "Chia thành 3-4 đoạn ngắn. Ngôn ngữ đơn giản, hình ảnh sinh động. Thêm tiêu đề ở đầu."
         )
         user = f"Chủ đề: {topic}\nMục tiêu giáo dục: {skill_goal}\nĐộ tuổi: {age_group}\n\nViết câu chuyện thiếu nhi."
     r = client.chat.completions.create(model="gpt-4o-mini",
@@ -290,6 +291,29 @@ def r2_upload_bytes(object_key, data_bytes, content_type):
 
 def r2_upload_mp3(key, data): return r2_upload_bytes(key, data, "audio/mpeg")
 def r2_upload_image(key, data): return r2_upload_bytes(key, data, "image/png")
+def r2_upload_text(key, text): return r2_upload_bytes(key, text.encode("utf-8"), "text/plain; charset=utf-8")
+
+def save_content_to_library(title, topic, skill_goal, age_group, content_type, content_text, scenes="", teaching_guide="", category=""):
+    """Luu tho/truyen vao CSV va upload len R2."""
+    ts = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
+    slug = ascii_slugify(title or topic)
+    content_r2_url = ""
+    if r2_client and content_text:
+        label = "BAI THO" if content_type == "tho" else "CAU CHUYEN"
+        full_doc = f"{label}: {title}\nChu de: {topic} | Muc tieu: {skill_goal} | Do tuoi: {age_group}\n{'='*50}\n\n{content_text}"
+        if scenes: full_doc += f"\n\n{'='*50}\nKICH BAN PHAN CANH\n{'='*50}\n{scenes}"
+        if teaching_guide: full_doc += f"\n\n{'='*50}\nHUONG DAN DAY HOC\n{'='*50}\n{teaching_guide}"
+        content_r2_url = r2_upload_text(f"content/{ts}_{slug}.txt", full_doc) or ""
+    row = {
+        "time": ts, "title": title or topic, "topic": topic, "keywords": skill_goal,
+        "style": category, "language": "vi", "verses": "", "bridge": "", "instrumental": "",
+        "track_index": "1", "audio_url": content_r2_url, "image_url": "", "mp3_path": "",
+        "cover_path": "", "lyrics": "", "age_group": age_group, "theme_month": "",
+        "source_type": "content", "content_type": content_type, "content_text": content_text,
+        "scenes": scenes, "teaching_guide": teaching_guide, "skill_goal": skill_goal,
+    }
+    write_history_row(row)
+    return ts, content_r2_url
 
 def r2_list_files(prefix="mp3/"):
     if not r2_client: return []
@@ -568,7 +592,24 @@ with tab_content:
                 with st.spinner("Đang tạo hướng dẫn dạy học..."):
                     st.session_state["ct_guide"] = generate_teaching_guide(content_ai, topic_sel, skill_goal, ct_age, poem_type)
 
-            st.success("✅ Tạo nội dung hoàn tất!")
+            # ── Lưu vào thư viện ngay sau khi tạo ──
+            with st.spinner("Đang lưu vào thư viện..."):
+                saved_ts, r2_url = save_content_to_library(
+                    title=topic_sel,
+                    topic=topic_sel,
+                    skill_goal=skill_goal,
+                    age_group=ct_age,
+                    content_type=poem_type,
+                    content_text=content_ai,
+                    scenes=st.session_state.get("ct_scenes",""),
+                    teaching_guide=st.session_state.get("ct_guide",""),
+                    category=category,
+                )
+            st.session_state["ct_saved_ts"] = saved_ts
+            if r2_url:
+                st.success(f"✅ Đã tạo và lưu vào thư viện! ☁️ Đồng bộ lên R2.")
+            else:
+                st.success("✅ Đã tạo và lưu vào thư viện!")
         except Exception as e:
             st.error(f"Lỗi: {e}")
 
@@ -724,51 +765,115 @@ with tab_poem:
 # ════════════ TAB 4: THƯ VIỆN ════════════
 with tab_library:
     st.session_state.setdefault("lib_page", 1)
-    st.markdown("### 📚 Thư viện (Gallery)")
+    st.markdown("### 📚 Thư viện — Tất cả sản phẩm đã tạo")
+
     df = load_history_df_local()
+    # Đảm bảo các cột mới tồn tại
+    for col in ["content_type","content_text","scenes","teaching_guide","skill_goal"]:
+        if col not in df.columns: df[col] = ""
+
     if df is None or len(df) == 0:
-        st.info("Chưa có bài nhạc nào trong thư viện.")
+        st.info("Chưa có sản phẩm nào trong thư viện.")
     else:
-        c1,c2,c3,c4 = st.columns([1.2,1,1,1])
-        with c1: q = st.text_input("Tìm kiếm", key="lib_kw").strip()
+        # ── Bộ lọc ──
+        c1, c2, c3, c4 = st.columns([1.5, 1, 1, 1])
+        with c1: q = st.text_input("🔍 Tìm kiếm tiêu đề / chủ đề", key="lib_kw").strip()
         with c2:
-            sv = sorted(df["style"].dropna().unique().tolist()) if "style" in df.columns else []
-            sp = st.selectbox("Phong cách", ["Tất cả"]+sv, key="lib_style")
+            loai_filter = st.selectbox("📂 Loại sản phẩm",
+                ["Tất cả", "🎵 Bài hát", "📜 Bài thơ", "📖 Câu chuyện"], key="lib_loai")
         with c3:
             av = sorted(df["age_group"].dropna().unique().tolist()) if "age_group" in df.columns else []
-            ap = st.selectbox("Độ tuổi", ["Tất cả"]+av, key="lib_age")
-        with c4: so = st.selectbox("Sắp xếp", ["Mới nhất","A→Z","Theo style"], key="lib_sort")
+            ap = st.selectbox("👶 Độ tuổi", ["Tất cả"]+av, key="lib_age")
+        with c4:
+            so = st.selectbox("📅 Sắp xếp", ["Mới nhất","A→Z"], key="lib_sort")
+
+        # Lọc theo loại
+        if loai_filter == "🎵 Bài hát":
+            df = df[~df["source_type"].isin(["content"])]
+        elif loai_filter == "📜 Bài thơ":
+            df = df[(df["source_type"]=="content") & (df["content_type"]=="tho")]
+        elif loai_filter == "📖 Câu chuyện":
+            df = df[(df["source_type"]=="content") & (df["content_type"]=="truyen")]
+
         if q:
             qn = norm_txt(q); mask = pd.Series(False, index=df.index)
-            for col in ["title","topic"]:
+            for col in ["title","topic","content_text"]:
                 if col in df.columns: mask |= df[col].astype(str).map(norm_txt).str.contains(qn, na=False)
             df = df[mask]
-        if sp != "Tất cả" and "style" in df.columns: df = df[df["style"]==sp]
-        if ap != "Tất cả" and "age_group" in df.columns: df = df[df["age_group"]==ap]
+        if ap != "Tất cả" and "age_group" in df.columns:
+            df = df[df["age_group"]==ap]
         if "time" in df.columns: df["time_dt"] = df["time"].apply(parse_time_safe)
-        if so == "Mới nhất" and "time_dt" in df.columns: df = df.sort_values("time_dt", ascending=False, na_position="last")
-        elif so == "A→Z" and "title" in df.columns: df = df.sort_values("title", key=lambda s: s.astype(str).str.lower())
-        if len(df) == 0: st.info("Không có bài nào khớp bộ lọc.")
+        if so == "Mới nhất" and "time_dt" in df.columns:
+            df = df.sort_values("time_dt", ascending=False, na_position="last")
+        elif so == "A→Z" and "title" in df.columns:
+            df = df.sort_values("title", key=lambda s: s.astype(str).str.lower())
+
+        total = len(df)
+        # Đếm theo loại để hiện badge
+        n_song    = len(df[~df["source_type"].isin(["content"])]) if "source_type" in df.columns else 0
+        n_tho     = len(df[(df.get("source_type","")=="content") & (df.get("content_type","")=="tho")]) if "content_type" in df.columns else 0
+        n_truyen  = len(df[(df.get("source_type","")=="content") & (df.get("content_type","")=="truyen")]) if "content_type" in df.columns else 0
+        st.markdown(
+            f"**Tổng: {total} sản phẩm** &nbsp;|&nbsp; "
+            f"🎵 {n_song} bài hát &nbsp;|&nbsp; 📜 {n_tho} bài thơ &nbsp;|&nbsp; 📖 {n_truyen} câu chuyện",
+            unsafe_allow_html=True)
+
+        if total == 0:
+            st.info("Không có sản phẩm nào khớp bộ lọc.")
         else:
-            cv1, cv2 = st.columns(2)
-            with cv1: layout_mode = st.radio("Kiểu hiển thị", ["Danh sách","Lưới"], horizontal=True)
-            with cv2: page_size = st.selectbox("Số bài/trang", [8,12,16,24])
-            total = len(df); page_count = max(1,(total+page_size-1)//page_size)
-            st.caption(f"Tổng {total} bài")
-            st.session_state.lib_page = st.number_input("Trang", 1, page_count, min(st.session_state.lib_page, page_count), key="lib_page_input")
-            start = (st.session_state.lib_page-1)*page_size; df_page = df.iloc[start:start+page_size].reset_index(drop=True)
-            if layout_mode == "Lưới":
-                cols = st.columns(4)
-                for idx, row in df_page.iterrows():
-                    with cols[idx%4]:
-                        show_cover_from_row(row); st.markdown(f"**{row.get('title') or 'Kids Song'}**"); st.caption(str(row.get("time",""))); show_audio_from_row(row, key_suffix=f"grid_{idx}")
-            else:
-                for idx, row in df_page.iterrows():
-                    ci, cm = st.columns([1,2.4])
-                    with ci: show_cover_from_row(row)
-                    with cm:
-                        st.markdown(f"**{row.get('title') or 'Kids Song'}**"); st.caption(str(row.get("time",""))); st.write(f"**Chủ đề:** {row.get('topic','')}"); st.write(f"**Phong cách:** {row.get('style','')}"); show_audio_from_row(row, key_suffix=f"list_{idx}")
-                    st.divider()
+            page_size = st.selectbox("Số sản phẩm/trang", [8,12,16,24], key="lib_pagesize")
+            page_count = max(1,(total+page_size-1)//page_size)
+            st.session_state.lib_page = st.number_input("Trang", 1, page_count,
+                min(st.session_state.lib_page, page_count), key="lib_page_input")
+            start = (st.session_state.lib_page-1)*page_size
+            df_page = df.iloc[start:start+page_size].reset_index(drop=True)
+
+            for idx, row in df_page.iterrows():
+                src = str(row.get("source_type",""))
+                ctype = str(row.get("content_type",""))
+                is_content = (src == "content")
+
+                if is_content:
+                    # ── Hiển thị Thơ / Truyện ──
+                    icon = "📜" if ctype == "tho" else "📖"
+                    label = "Bài thơ" if ctype == "tho" else "Câu chuyện"
+                    with st.expander(f"{icon} **{label}:** {row.get('title','')} &nbsp;·&nbsp; {str(row.get('time',''))[:15]}", expanded=False):
+                        col_info, col_dl = st.columns([2,1])
+                        with col_info:
+                            st.caption(f"🎯 Mục tiêu: {row.get('skill_goal', row.get('keywords',''))}")
+                            st.caption(f"👶 Độ tuổi: {row.get('age_group','')}  |  📂 Nhóm: {row.get('style','')}")
+                        with col_dl:
+                            # Tải toàn bộ tài liệu
+                            full = str(row.get("content_text",""))
+                            sep = "=" * 40
+                            if row.get("scenes"): full += "\n\n" + sep + "\nPHAN CANH\n" + sep + "\n" + str(row["scenes"])
+                            if row.get("teaching_guide"): full += "\n\n" + sep + "\nHUONG DAN DAY HOC\n" + sep + "\n" + str(row["teaching_guide"])
+                            if full.strip():
+                                st.download_button("⬇️ Tải tài liệu (.txt)",
+                                    data=full.encode("utf-8"),
+                                    file_name=f"{ascii_slugify(row.get('title','noi_dung'))}.txt",
+                                    mime="text/plain",
+                                    key=f"dl_content_{idx}_{row.get('time','')}")
+                        # Hiển thị nội dung
+                        tab_a, tab_b, tab_c = st.tabs([f"{icon} Nội dung", "🎬 Phân cảnh", "📋 Hướng dẫn"])
+                        with tab_a:
+                            st.markdown(str(row.get("content_text","")) or "_Chưa có nội dung_")
+                        with tab_b:
+                            st.markdown(str(row.get("scenes","")) or "_Chưa có kịch bản phân cảnh_")
+                        with tab_c:
+                            st.markdown(str(row.get("teaching_guide","")) or "_Chưa có hướng dẫn dạy học_")
+                else:
+                    # ── Hiển thị Bài hát ──
+                    with st.expander(f"🎵 **Bài hát:** {row.get('title','Kids Song')} &nbsp;·&nbsp; {str(row.get('time',''))[:15]}", expanded=False):
+                        c_img, c_meta = st.columns([1, 2.5])
+                        with c_img: show_cover_from_row(row)
+                        with c_meta:
+                            st.write(f"**Chủ đề:** {row.get('topic','')}")
+                            st.write(f"**Phong cách:** {row.get('style','')}")
+                            st.write(f"**Độ tuổi:** {row.get('age_group','')}")
+                            show_audio_from_row(row, key_suffix=f"lib_{idx}")
+                st.divider()
+
             if st.button("🔄 Làm mới thư viện", use_container_width=True): st.rerun()
 
 # ════════════ TAB 5: LỊCH SỬ ════════════
