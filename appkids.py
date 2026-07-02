@@ -930,8 +930,7 @@ with tab_settings:
     st.divider()
     st.markdown("### ℹ️ Ghi chú")
     st.markdown(
-        "- Tab **📝 Thơ & Truyện**: AI tạo thơ/truyện kèm hình minh họa, có thể chuyển thành nhạc.\n"
-        "- **DALL-E** vẽ hình tốn ~$0.04/ảnh, ảnh có sẵn miễn phí.\n"
+        "- Tab **📝 Thơ & Truyện**: AI tạo thơ/truyện sáng tạo có thể chuyển thành nhạc.\n"
         "- **Refine** chỉnh câu từ, không đổi chủ đề.\n"
         "- Thư viện và lịch sử đọc từ `outputs/tracks.csv`.")
 
