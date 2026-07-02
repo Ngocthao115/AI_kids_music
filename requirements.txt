@@ -1,6 +1,6 @@
 streamlit
-openai
+openai>=1.30.0
+boto3
 requests
 pandas
 python-dotenv
-boto3
