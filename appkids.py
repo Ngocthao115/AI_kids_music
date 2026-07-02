@@ -163,17 +163,17 @@ def generate_poem(topic, age_group, skill_goal, poem_type="tho"):
     if poem_type == "tho":
         system = (
             "Bạn là nhà thơ thiếu nhi Việt Nam giàu kinh nghiệm sư phạm mầm non. "
-            "Viết bài thơ ngắn cho trẻ mầm non: 4-6 khổ, mỗi khổ 4 câu, vần điệu rõ ràng, "
-            "ngôn ngữ trong sáng, hình ảnh sinh động, dễ thuộc, mang thông điệp giáo dục tích cực. "
+            "Viết bài thơ ngắn cho trẻ mầm non: 2 - 3 khổ cho trẻ từ 0-3 tuổi và 4-6 khổ cho trẻ từ 3-6 tuổi, mỗi khổ 4 câu, vần điệu rõ ràng, "
+            "ngôn ngữ trong sáng, gieo vần, hình ảnh sinh động, dễ thuộc, mang thông điệp giáo dục tích cực. "
             "Không có nội dung tiêu cực, bạo lực. Thêm tiêu đề bài thơ ở đầu."
         )
         user = f"Chủ đề: {topic}\nMục tiêu giáo dục: {skill_goal}\nĐộ tuổi: {age_group}\n\nViết bài thơ thiếu nhi."
     else:
         system = (
             "Bạn là nhà văn chuyên viết truyện thiếu nhi Việt Nam. "
-            "Viết câu chuyện ngắn 200 từ cho trẻ lứa tuổi 0-3 tuổi và 300-400 từ cho trẻ lứa tuổi mẫu giáo (3-5 tuổi): có nhân vật dễ thương (con vật, bé nhỏ), "
+            "Viết câu chuyện ngắn 200 từ cho trẻ từ 0-3 tuổi và 300-400 từ cho trẻ từ 3-6 tuổi: có nhân vật dễ thương (con vật, bé nhỏ), "
             "tình huống gần gũi, kết thúc có thông điệp tích cực rõ ràng. "
-            "Chia thành 3-4 đoạn ngắn. Ngôn ngữ đơn giản, hình ảnh sinh động. Thêm tiêu đề ở đầu."
+            "Chia thành 2 đoạn ngắn cho trẻ từ 0-3 tuổi và 3-4 đoạn ngắn cho trẻ từ 3-6 tuổi. Ngôn ngữ đơn giản, hình ảnh sinh động. Thêm tiêu đề ở đầu."
         )
         user = f"Chủ đề: {topic}\nMục tiêu giáo dục: {skill_goal}\nĐộ tuổi: {age_group}\n\nViết câu chuyện thiếu nhi."
     r = client.chat.completions.create(model="gpt-4o-mini",
@@ -181,74 +181,50 @@ def generate_poem(topic, age_group, skill_goal, poem_type="tho"):
         temperature=0.85, max_tokens=900)
     return r.choices[0].message.content.strip()
 
-def generate_illustration_dalle(topic, skill_goal, age_group, style="watercolor"):
-    """Tạo hình minh họa bằng OpenAI Image API."""
-    style_prompts = {
-        "watercolor": "soft watercolor illustration, pastel colors, gentle brushstrokes",
-        "cartoon": "cute cartoon style, bright vivid colors, bold outlines, 2D animation style",
-        "flat": "flat design vector illustration, simple geometric shapes, vibrant colors",
-        "storybook": "children's storybook illustration, warm earthy colors, hand-drawn detailed style",
-    }
-    style_desc = style_prompts.get(style, style_prompts["watercolor"])
-    prompt = (
-        f"{style_desc} for Vietnamese preschool children aged 3-6. "
-        f"Scene showing: {topic} — {skill_goal}. "
-        "Cute, friendly Vietnamese children with round faces and big eyes as main characters. "
-        "Bright cheerful classroom or outdoor setting. Educational and positive mood. "
-        "No text, no letters, no words in the image. Safe for children. High quality."
+def generate_scenes(content, topic, poem_type, age_group):
+    """Tạo kịch bản phân cảnh minh họa từ nội dung thơ/truyện."""
+    if poem_type == "tho":
+        system = (
+            "Bạn là chuyên gia sư phạm mầm non và họa sĩ minh họa sách thiếu nhi. "
+            "Dựa trên bài thơ, hãy tạo 4-5 PHÂN CẢNH MINH HỌA mô tả chi tiết hình ảnh "
+            "mà giáo viên có thể vẽ hoặc in để dạy trẻ. Mỗi phân cảnh gồm: "
+            "① Tên cảnh, ② Mô tả hình ảnh chi tiết (nhân vật, màu sắc, bối cảnh), "
+            "③ Câu thơ tương ứng, ④ Gợi ý hoạt động cho trẻ với cảnh đó."
+        )
+        user = f"Bài thơ về '{topic}' cho trẻ {age_group}:\n\n{content}\n\nTạo kịch bản phân cảnh minh họa."
+    else:
+        system = (
+            "Bạn là chuyên gia sư phạm mầm non và họa sĩ minh họa sách thiếu nhi. "
+            "Dựa trên câu chuyện, hãy tạo 4-5 PHÂN CẢNH MINH HỌA như một cuốn sách tranh. "
+            "Mỗi phân cảnh gồm: ① Tên cảnh/trang, ② Mô tả hình ảnh chi tiết "
+            "(nhân vật, biểu cảm, màu sắc, bối cảnh), ③ Đoạn truyện tương ứng, "
+            "④ Câu hỏi gợi mở cho trẻ khi xem tranh."
+        )
+        user = f"Câu chuyện về '{topic}' cho trẻ {age_group}:\n\n{content}\n\nTạo kịch bản phân cảnh minh họa sách tranh."
+    r = client.chat.completions.create(model="gpt-4o-mini",
+        messages=[{"role":"system","content":system},{"role":"user","content":user}],
+        temperature=0.8, max_tokens=1200)
+    return r.choices[0].message.content.strip()
+
+def generate_teaching_guide(content, topic, skill_goal, age_group, poem_type):
+    """Tạo hướng dẫn sử dụng trong dạy học."""
+    ptype = "bài thơ" if poem_type == "tho" else "câu chuyện"
+    system = (
+        "Bạn là chuyên gia giáo dục mầm non Việt Nam. "
+        f"Tạo HƯỚNG DẪN SỬ DỤNG {ptype.upper()} TRONG DẠY HỌC gồm: "
+        "① Mục tiêu giáo dục cụ thể (3-4 mục tiêu), "
+        "② Cách dẫn dắt trẻ vào bài (2-3 câu hỏi khởi động), "
+        "③ Hoạt động trong khi đọc/kể (3-4 hoạt động tương tác), "
+        "④ Hoạt động sau khi đọc/kể (2-3 trò chơi/bài tập củng cố), "
+        "⑤ Lời nhắn nhủ/thông điệp chốt cho trẻ (1-2 câu ngắn gọn)."
     )
-    # Thử dall-e-3 trước, fallback sang dall-e-2 nếu lỗi
-    for model_name in ["dall-e-3", "dall-e-2"]:
-        try:
-            resp = client.images.generate(
-                model=model_name,
-                prompt=prompt,
-                size="1024x1024" if model_name == "dall-e-3" else "512x512",
-                n=1,
-            )
-            return resp.data[0].url
-        except Exception as e:
-            err = str(e)
-            if "does not exist" in err or "invalid_value" in err:
-                continue  # thử model tiếp theo
-            raise  # lỗi khác thì raise luôn
-    # Nếu cả 2 đều không được, thử dùng requests trực tiếp
-    headers = {"Authorization": f"Bearer {OPENAI_API_KEY}", "Content-Type": "application/json"}
-    payload = {"model": "dall-e-2", "prompt": prompt[:900], "n": 1, "size": "512x512"}
-    r = requests.post("https://api.openai.com/v1/images/generations", headers=headers, json=payload, timeout=60)
-    r.raise_for_status()
-    return r.json()["data"][0]["url"]
+    user = f"Chủ đề: {topic}\nMục tiêu: {skill_goal}\nĐộ tuổi: {age_group}\n\nNội dung:\n{content[:500]}...\n\nTạo hướng dẫn dạy học."
+    r = client.chat.completions.create(model="gpt-4o-mini",
+        messages=[{"role":"system","content":system},{"role":"user","content":user}],
+        temperature=0.7, max_tokens=800)
+    return r.choices[0].message.content.strip()
 
-# Bảng từ khóa ảnh tiếng Anh cho từng chủ đề
-_TOPIC_IMAGE_KEYWORDS = {
-    "Rửa tay sạch": "child+washing+hands+soap+cute",
-    "Đánh răng buổi sáng": "child+brushing+teeth+cartoon+cute",
-    "Mặc quần áo gọn gàng": "child+getting+dressed+cute+cartoon",
-    "Chào hỏi lễ phép": "children+greeting+polite+bow+cute",
-    "Ăn uống gọn gàng": "child+eating+lunch+school+cute",
-    "Dọn dẹp đồ chơi": "child+cleaning+toys+tidy+cute",
-    "Vượt qua sợ hãi": "brave+child+courage+cartoon+cute",
-    "Yêu thương bạn bè": "children+friendship+love+hug+cute",
-    "Chia sẻ đồ chơi": "children+sharing+toys+happy",
-    "Xin lỗi và tha thứ": "children+apologize+sorry+hug",
-    "Cảm ơn và biết ơn": "children+thank+gratitude+smile",
-    "Kiên nhẫn chờ đợi": "children+waiting+patient+queue",
-    "Vui vẻ mỗi ngày": "happy+children+smile+sunny+cute",
-    "Dũng cảm và tự tin": "confident+child+brave+smile",
-    "Màu sắc cơ bản": "children+learning+colors+rainbow+cute",
-    "Số đếm 1-10": "children+counting+numbers+cute+colorful",
-    "Hình dạng cơ bản": "children+shapes+learning+cute",
-    "Chữ cái tiếng Việt": "children+alphabet+learning+cute",
-    "Các mùa trong năm": "four+seasons+children+cute+illustration",
-    "Ngày và đêm": "day+night+sun+moon+children+cute",
-    "Con số và phép đếm": "children+math+counting+blocks+cute",
-}
 
-def generate_illustration_search(topic, skill_goal):
-    """Tìm ảnh minh họa phù hợp chủ đề qua Unsplash Source."""
-    keyword = _TOPIC_IMAGE_KEYWORDS.get(topic, f"preschool+children+{topic.replace(' ','+')}+cute")
-    # Dùng Unsplash Source — ảnh thực sự liên quan, miễn phí, không cần API key
-    return f"https://source.unsplash.com/800x600/?{keyword}"
 
 def _suno_err(resp):
     try: msg = resp.json().get("msg") or resp.json().get("message") or resp.text
@@ -430,7 +406,7 @@ with st.sidebar:
 st.title("🎵 MẦM NON STUDIO")
 st.markdown(
     '<span class="badge">🏫 Dành riêng cho Giáo viên Mầm non</span>&nbsp;'
-    '<span class="badge">✨ Tạo nhạc & Thơ & Truyện sáng tạo bằng AI</span>&nbsp;'
+    '<span class="badge">✨ Tạo nhạc & Thơ & Truyện bằng AI</span>&nbsp;'
     '<span class="badge">🎨 Hình minh họa AI</span>',
     unsafe_allow_html=True)
 
@@ -540,12 +516,11 @@ with tab_make:
             st.success(f"Đã lưu bài hát{'  và đồng bộ lên **Cloudflare R2** ☁️' if r2_client else ''}. Xem ở tab 📚 Thư viện.")
         except Exception as e: st.error(str(e))
 
-# ════════════ TAB 2: THƠ & TRUYỆN + HÌNH MINH HỌA ════════════
+# ════════════ TAB 2: THƠ & TRUYỆN ════════════
 with tab_content:
-    st.markdown("### 📝 Tạo Thơ & Câu Chuyện có Hình Minh Họa")
-    st.info("💡 AI tạo bài thơ hoặc câu chuyện **mang tính giáo dục** về kỹ năng, thái độ, học tập — kèm hình ảnh minh họa đẹp cho lớp học.")
+    st.markdown("### 📝 Tạo Thơ & Câu Chuyện Giáo Dục Mầm Non")
+    st.info("💡 AI tạo bài thơ hoặc câu chuyện **mang tính giáo dục** — kèm **kịch bản phân cảnh minh họa** và **hướng dẫn dạy học** chi tiết cho giáo viên.")
 
-    # Chọn chủ đề kỹ năng/thái độ/học tập
     c_cat, c_topic_sel = st.columns([1,2])
     with c_cat:
         category = st.selectbox("📂 Nhóm chủ đề", list(CONTENT_THEMES.keys()), key="ct_category")
@@ -557,111 +532,105 @@ with tab_content:
     st.caption(f"🎯 Mục tiêu giáo dục: *{skill_goal}*")
 
     st.divider()
-    c1, c2, c3 = st.columns(3)
+    c1, c2 = st.columns(2)
     with c1:
         ct_age  = st.selectbox("👶 Độ tuổi", AGE_GROUPS, index=1, key="ct_age")
     with c2:
-        ct_type = st.radio("📄 Loại nội dung", ["🎭 Bài thơ","📖 Câu chuyện"], horizontal=True, key="ct_type")
-    with c3:
-        illus_method = st.radio("🎨 Hình minh họa", ["🤖 AI vẽ (DALL-E)","🔍 Ảnh có sẵn"], horizontal=True, key="ct_illus")
+        ct_type = st.radio("📄 Loại nội dung", ["🎭 Bài thơ", "📖 Câu chuyện"], horizontal=True, key="ct_type")
 
-    if illus_method == "🤖 AI vẽ (DALL-E)":
-        illus_style = st.select_slider("Phong cách vẽ",
-            options=["watercolor","cartoon","flat","storybook"],
-            format_func=lambda x: {"watercolor":"🎨 Màu nước","cartoon":"🖍️ Hoạt hình","flat":"🟦 Phẳng/Hiện đại","storybook":"📚 Sách tranh"}[x],
-            key="ct_illus_style")
-    else:
-        illus_style = "search"
+    ct_options = st.multiselect(
+        "✅ Tạo thêm (tuỳ chọn)",
+        ["🎬 Kịch bản phân cảnh minh họa", "📋 Hướng dẫn dạy học"],
+        default=["🎬 Kịch bản phân cảnh minh họa", "📋 Hướng dẫn dạy học"],
+        key="ct_options"
+    )
 
-    btn_gen_content = st.button("✨ Tạo nội dung + Hình minh họa", use_container_width=True, key="btn_gen_content")
+    btn_gen_content = st.button("✨ Tạo nội dung", use_container_width=True, key="btn_gen_content")
 
     if btn_gen_content:
         poem_type = "tho" if "Bài thơ" in ct_type else "truyen"
         try:
-            col_text, col_img = st.columns([1,1])
-            with col_text:
-                with st.spinner("Đang sáng tác nội dung..."):
-                    content = generate_poem(topic_sel, ct_age, skill_goal, poem_type)
-                st.session_state["ct_content"] = content
-                st.session_state["ct_topic_name"] = topic_sel
-                st.session_state["ct_skill_goal"] = skill_goal
-                st.session_state["ct_age_sel"] = ct_age
-                st.session_state["ct_type_sel"] = poem_type
+            with st.spinner("Đang sáng tác nội dung..."):
+                content_ai = generate_poem(topic_sel, ct_age, skill_goal, poem_type)
+            st.session_state["ct_content"]    = content_ai
+            st.session_state["ct_topic_name"] = topic_sel
+            st.session_state["ct_skill_goal"] = skill_goal
+            st.session_state["ct_age_sel"]    = ct_age
+            st.session_state["ct_type_sel"]   = poem_type
+            st.session_state["ct_scenes"]     = ""
+            st.session_state["ct_guide"]      = ""
 
-            with col_img:
-                with st.spinner("Đang tạo hình minh họa..."):
-                    if illus_method == "🤖 AI vẽ (DALL-E)":
-                        try:
-                            img_url = generate_illustration_dalle(topic_sel, skill_goal, ct_age, illus_style)
-                            st.session_state["ct_illus_source"] = "dalle"
-                        except Exception as e:
-                            err_msg = str(e)
-                            if "billing" in err_msg.lower() or "quota" in err_msg.lower() or "insufficient" in err_msg.lower():
-                                st.warning("⚠️ **DALL-E lỗi billing:** Tài khoản OpenAI cần nạp thêm credit hoặc verify thẻ. Vào platform.openai.com → Billing.")
-                            elif "invalid_api_key" in err_msg.lower() or "401" in err_msg:
-                                st.warning("⚠️ **DALL-E lỗi API key:** API key không hợp lệ hoặc hết hạn. Kiểm tra lại OPENAI_API_KEY trong Secrets.")
-                            elif "content_policy" in err_msg.lower():
-                                st.warning("⚠️ **DALL-E lỗi nội dung:** Prompt bị từ chối. Đang dùng ảnh có sẵn thay thế.")
-                            else:
-                                st.warning(f"⚠️ **DALL-E lỗi:** `{err_msg[:200]}` — Đang dùng ảnh có sẵn thay thế.")
-                            img_url = generate_illustration_search(topic_sel, skill_goal)
-                            st.session_state["ct_illus_source"] = "search"
-                    else:
-                        img_url = generate_illustration_search(topic_sel, skill_goal)
-                        st.session_state["ct_illus_source"] = "search"
-                st.session_state["ct_img_url"] = img_url
+            if "🎬 Kịch bản phân cảnh minh họa" in ct_options:
+                with st.spinner("Đang tạo kịch bản phân cảnh..."):
+                    st.session_state["ct_scenes"] = generate_scenes(content_ai, topic_sel, poem_type, ct_age)
 
+            if "📋 Hướng dẫn dạy học" in ct_options:
+                with st.spinner("Đang tạo hướng dẫn dạy học..."):
+                    st.session_state["ct_guide"] = generate_teaching_guide(content_ai, topic_sel, skill_goal, ct_age, poem_type)
+
+            st.success("✅ Tạo nội dung hoàn tất!")
         except Exception as e:
             st.error(f"Lỗi: {e}")
 
-    # Hiển thị kết quả
     if st.session_state.get("ct_content"):
         st.divider()
-        col_text, col_img = st.columns([1,1])
-        with col_text:
-            type_label = "📜 Bài thơ" if st.session_state.get("ct_type_sel") == "tho" else "📖 Câu chuyện"
-            st.markdown(f"#### {type_label}: {st.session_state.get('ct_topic_name','')}")
-            st.markdown(f"*Mục tiêu: {st.session_state.get('ct_skill_goal','')}*")
-            st.text_area("Nội dung:", value=st.session_state["ct_content"], height=350, key="ct_content_edit")
-            # Nút tải về văn bản
-            st.download_button("⬇️ Tải văn bản (.txt)",
-                data=st.session_state["ct_content"].encode("utf-8"),
-                file_name=f"{ascii_slugify(st.session_state.get('ct_topic_name','noi_dung'))}.txt",
+        type_label = "📜 Bài thơ" if st.session_state.get("ct_type_sel") == "tho" else "📖 Câu chuyện"
+        topic_name = st.session_state.get("ct_topic_name", "")
+        content_val = st.session_state.get("ct_content", "")
+        scenes_val  = st.session_state.get("ct_scenes", "")
+        guide_val   = st.session_state.get("ct_guide", "")
+
+        r_tab1, r_tab2, r_tab3 = st.tabs([f"{type_label}", "🎬 Phân cảnh minh họa", "📋 Hướng dẫn dạy học"])
+
+        with r_tab1:
+            st.markdown(f"#### {type_label}: {topic_name}")
+            st.caption(f"*Mục tiêu: {st.session_state.get('ct_skill_goal','')} | Độ tuổi: {st.session_state.get('ct_age_sel','')}*")
+            st.markdown(content_val)
+            st.divider()
+            full_text = f"{type_label}: {topic_name}\nMục tiêu: {st.session_state.get('ct_skill_goal','')}\nĐộ tuổi: {st.session_state.get('ct_age_sel','')}\n\n{content_val}"
+            if scenes_val: full_text += f"\n\n{'='*50}\nKỊCH BẢN PHÂN CẢNH MINH HỌA\n{'='*50}\n{scenes_val}"
+            if guide_val:  full_text += f"\n\n{'='*50}\nHƯỚNG DẪN DẠY HỌC\n{'='*50}\n{guide_val}"
+            st.download_button("⬇️ Tải toàn bộ tài liệu (.txt)",
+                data=full_text.encode("utf-8"),
+                file_name=f"{ascii_slugify(topic_name)}_tron_bo.txt",
                 mime="text/plain", use_container_width=True)
 
-        with col_img:
-            st.markdown("#### 🎨 Hình minh họa")
-            img_url = st.session_state.get("ct_img_url","")
-            if img_url:
-                st.image(img_url, use_container_width=True)
-                # Tải và upload hình lên R2
-                try:
-                    img_bytes = download_bytes(img_url)
-                    ts = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
-                    img_key = f"illustrations/{ts}_{ascii_slugify(st.session_state.get('ct_topic_name','img'))}.jpg"
-                    local_img = os.path.join(IMG_DIR, f"{ts}_{ascii_slugify(st.session_state.get('ct_topic_name','img'))}.jpg")
-                    open(local_img,"wb").write(img_bytes)
-                    img_r2_url = r2_upload_image(img_key, img_bytes) if r2_client else None
-                    st.download_button("⬇️ Tải hình minh họa",
-                        data=img_bytes, file_name=os.path.basename(local_img),
-                        mime="image/jpeg", use_container_width=True, key="dl_illus")
-                    if img_r2_url:
-                        st.caption("☁️ Hình đã lưu lên Cloudflare R2")
-                except Exception as e:
-                    st.caption(f"Không tải được hình: {e}")
+        with r_tab2:
+            if scenes_val:
+                st.markdown("#### 🎬 Kịch bản phân cảnh minh họa")
+                st.caption("Dùng để vẽ tranh, in ấn, kể chuyện trực quan hoặc làm flashcard cho trẻ")
+                st.markdown(scenes_val)
+                st.download_button("⬇️ Tải kịch bản phân cảnh (.txt)",
+                    data=scenes_val.encode("utf-8"),
+                    file_name=f"{ascii_slugify(topic_name)}_phan_canh.txt",
+                    mime="text/plain", use_container_width=True)
+            else:
+                st.info("Chọn **'🎬 Kịch bản phân cảnh minh họa'** ở trên rồi bấm Tạo nội dung.")
+
+        with r_tab3:
+            if guide_val:
+                st.markdown("#### 📋 Hướng dẫn sử dụng trong dạy học")
+                st.caption("Gợi ý câu hỏi, hoạt động tương tác và trò chơi củng cố kiến thức")
+                st.markdown(guide_val)
+                st.download_button("⬇️ Tải hướng dẫn dạy học (.txt)",
+                    data=guide_val.encode("utf-8"),
+                    file_name=f"{ascii_slugify(topic_name)}_huong_dan.txt",
+                    mime="text/plain", use_container_width=True)
+            else:
+                st.info("Chọn **'📋 Hướng dẫn dạy học'** ở trên rồi bấm Tạo nội dung.")
 
         st.divider()
-        st.markdown("#### 🎵 Chuyển nội dung này thành bài hát?")
+        st.markdown("#### 🎵 Chuyển thành bài hát?")
         ct_song_style = st.selectbox("Phong cách nhạc", STYLE_DISPLAY, index=0, key="ct_song_style")
         ct_instrumental = st.toggle("Chỉ giai điệu", value=False, key="ct_instrumental")
         if st.button("🎧 Chuyển thành bài hát & Tạo nhạc", use_container_width=True, key="btn_ct_to_song"):
             style_ct = STYLE_MAP.get(ct_song_style.split("–")[0].strip(), DEFAULT_SUNOSTYLE)
             try:
                 with st.spinner("Đang chuyển thành lời bài hát..."):
-                    converted = poem_to_song(st.session_state["ct_content"], st.session_state.get("ct_age_sel",""), ct_song_style)
+                    converted = poem_to_song(content_val, st.session_state.get("ct_age_sel",""), ct_song_style)
                 st.session_state["ct_converted_lyrics"] = converted
-                st.session_state["ct_converted_style"] = style_ct
-                st.session_state["ct_song_title"] = st.session_state.get("ct_topic_name","Bài Hát")
+                st.session_state["ct_converted_style"]  = style_ct
+                st.session_state["ct_song_title"]       = topic_name
                 st.success("✅ Đã chuyển thành lời! Xem bên dưới.")
             except Exception as e: st.error(str(e))
 
@@ -692,15 +661,16 @@ with tab_content:
                             st.download_button("⬇️ Tải MP3", data=mp3_data, file_name=os.path.basename(mp3_path), mime="audio/mpeg", use_container_width=True, key=f"dl_ct_{ts}_{i}")
                         elif audio_url_final: st.audio(audio_url_final, format="audio/mp3")
                         write_history_row({"time":ts,"title":st.session_state.get("ct_song_title","Kids Song"),
-                            "topic":st.session_state.get("ct_topic_name",""),"keywords":st.session_state.get("ct_skill_goal",""),
-                            "style":ct_song_style,"language":"vi","verses":"2","bridge":"true","instrumental":str(ct_instrumental).lower(),
-                            "track_index":i,"audio_url":audio_url_final,"image_url":st.session_state.get("ct_img_url",""),
+                            "topic":topic_name,"keywords":skill_goal,"style":ct_song_style,"language":"vi",
+                            "verses":"2","bridge":"true","instrumental":str(ct_instrumental).lower(),
+                            "track_index":i,"audio_url":audio_url_final,"image_url":"",
                             "mp3_path":mp3_path if not audio_url_r2 else "","cover_path":"",
-                            "lyrics":st.session_state["ct_converted_lyrics"],"age_group":st.session_state.get("ct_age_sel",""),
-                            "theme_month":"","source_type":"content"})
+                            "lyrics":st.session_state["ct_converted_lyrics"],
+                            "age_group":st.session_state.get("ct_age_sel",""),"theme_month":"","source_type":"content"})
                     st.balloons(); st.success("✅ Đã tạo nhạc! Xem ở tab 📚 Thư viện.")
                     st.session_state["ct_converted_lyrics"] = ""
                 except Exception as e: st.error(str(e))
+
 
 # ════════════ TAB 3: THƠ/TRUYỆN → NHẠC ════════════
 with tab_poem:
