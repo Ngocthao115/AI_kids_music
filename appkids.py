@@ -184,18 +184,18 @@ def generate_poem(topic, age_group, skill_goal, poem_type="tho"):
 def generate_illustration_dalle(topic, skill_goal, age_group, style="watercolor"):
     """Tạo hình minh họa bằng DALL-E 3."""
     style_prompts = {
-        "watercolor": "soft watercolor illustration, pastel colors",
-        "cartoon": "cute cartoon style, bright colors, bold outlines",
-        "flat": "flat design illustration, simple shapes, vibrant colors",
-        "storybook": "children's storybook illustration, warm colors, detailed",
+        "watercolor": "soft watercolor illustration, pastel colors, gentle brushstrokes",
+        "cartoon": "cute cartoon style, bright vivid colors, bold outlines, 2D animation style",
+        "flat": "flat design vector illustration, simple geometric shapes, vibrant colors",
+        "storybook": "children's storybook illustration, warm earthy colors, hand-drawn detailed style",
     }
     style_desc = style_prompts.get(style, style_prompts["watercolor"])
     prompt = (
-        f"A {style_desc} for Vietnamese preschool children (ages 3-6). "
-        f"Theme: {topic}. Educational goal: {skill_goal}. "
-        "Characters: cute, friendly Vietnamese children or animals. "
-        "Scene is cheerful, safe, educational. No text in image. "
-        "High quality, suitable for classroom display."
+        f"{style_desc} for Vietnamese preschool children aged 3-6. "
+        f"Scene showing: {topic} — {skill_goal}. "
+        "Cute, friendly Vietnamese children with round faces and big eyes as main characters. "
+        "Bright cheerful classroom or outdoor setting. Educational and positive mood. "
+        "No text, no letters, no words in the image. Safe for children. High quality."
     )
     resp = client.images.generate(
         model="dall-e-3",
@@ -206,11 +206,36 @@ def generate_illustration_dalle(topic, skill_goal, age_group, style="watercolor"
     )
     return resp.data[0].url
 
+# Bảng từ khóa ảnh tiếng Anh cho từng chủ đề
+_TOPIC_IMAGE_KEYWORDS = {
+    "Rửa tay sạch": "child+washing+hands+soap+cute",
+    "Đánh răng buổi sáng": "child+brushing+teeth+cartoon+cute",
+    "Mặc quần áo gọn gàng": "child+getting+dressed+cute+cartoon",
+    "Chào hỏi lễ phép": "children+greeting+polite+bow+cute",
+    "Ăn uống gọn gàng": "child+eating+lunch+school+cute",
+    "Dọn dẹp đồ chơi": "child+cleaning+toys+tidy+cute",
+    "Vượt qua sợ hãi": "brave+child+courage+cartoon+cute",
+    "Yêu thương bạn bè": "children+friendship+love+hug+cute",
+    "Chia sẻ đồ chơi": "children+sharing+toys+happy",
+    "Xin lỗi và tha thứ": "children+apologize+sorry+hug",
+    "Cảm ơn và biết ơn": "children+thank+gratitude+smile",
+    "Kiên nhẫn chờ đợi": "children+waiting+patient+queue",
+    "Vui vẻ mỗi ngày": "happy+children+smile+sunny+cute",
+    "Dũng cảm và tự tin": "confident+child+brave+smile",
+    "Màu sắc cơ bản": "children+learning+colors+rainbow+cute",
+    "Số đếm 1-10": "children+counting+numbers+cute+colorful",
+    "Hình dạng cơ bản": "children+shapes+learning+cute",
+    "Chữ cái tiếng Việt": "children+alphabet+learning+cute",
+    "Các mùa trong năm": "four+seasons+children+cute+illustration",
+    "Ngày và đêm": "day+night+sun+moon+children+cute",
+    "Con số và phép đếm": "children+math+counting+blocks+cute",
+}
+
 def generate_illustration_search(topic, skill_goal):
-    """Tìm ảnh minh họa từ Unsplash (không cần API key)."""
-    query = f"children preschool {topic.replace(' ','+')}+cute+cartoon"
-    seed = abs(hash(topic + skill_goal)) % 1000
-    return f"https://picsum.photos/seed/{seed}/800/600"
+    """Tìm ảnh minh họa phù hợp chủ đề qua Unsplash Source."""
+    keyword = _TOPIC_IMAGE_KEYWORDS.get(topic, f"preschool+children+{topic.replace(' ','+')}+cute")
+    # Dùng Unsplash Source — ảnh thực sự liên quan, miễn phí, không cần API key
+    return f"https://source.unsplash.com/800x600/?{keyword}"
 
 def _suno_err(resp):
     try: msg = resp.json().get("msg") or resp.json().get("message") or resp.text
@@ -334,7 +359,7 @@ def show_cover_from_row(row):
     cp = str(row.get("cover_path","") or "").strip(); iu = str(row.get("image_url","") or "").strip()
     if cp and os.path.exists(cp): st.image(cp, use_container_width=True)
     elif iu: st.image(iu, use_container_width=True)
-    else: st.image("https://picsum.photos/seed/kidsmusic/600/400", use_container_width=True)
+    else: st.image("https://source.unsplash.com/600x400/?preschool+children+cute+classroom", use_container_width=True)
 
 def show_audio_from_row(row, key_suffix=""):
     mp = str(row.get("mp3_path","") or "").strip(); au = str(row.get("audio_url","") or "").strip()
@@ -348,7 +373,7 @@ def show_audio_from_row(row, key_suffix=""):
 # ════════════════════════════════════════════════════
 # UI
 # ════════════════════════════════════════════════════
-st.set_page_config(page_title="NHẠC AI THIẾU NHI - MẦM NON", page_icon="🎵", layout="centered")
+st.set_page_config(page_title="MẦM NON STUDIO", page_icon="🎵", layout="centered")
 
 def add_bg_from_local(image_path, alpha=0.85):
     try:
@@ -389,11 +414,11 @@ with st.sidebar:
     st.caption(f"Model Suno: **{SUNO_MODEL}**")
     st.caption(f"Cloudflare R2: **{r2_status}**")
 
-st.title("🎵 NHẠC AI THIẾU NHI - MẦM NON")
+st.title("🎵 MẦM NON STUDIO")
 st.markdown(
     '<span class="badge">🏫 Dành riêng cho Giáo viên Mầm non</span>&nbsp;'
-    '<span class="badge">✨ Tạo nhạc & Thơ & Truyện bằng AI</span>&nbsp;'
-    '<span class="badge">🎨 Hình minh họa AI</span>',
+    '<span class="badge">✨ Tạo nhạc & Thơ & Truyện sáng tạo bằng AI</span>&nbsp;'
+    '<span class="badge">🎨 Hình ảnh minh họa AI</span>',
     unsafe_allow_html=True)
 
 tab_make, tab_content, tab_poem, tab_library, tab_history, tab_settings = st.tabs([
@@ -555,11 +580,18 @@ with tab_content:
                     if illus_method == "🤖 AI vẽ (DALL-E)":
                         try:
                             img_url = generate_illustration_dalle(topic_sel, skill_goal, ct_age, illus_style)
+                            st.session_state["ct_illus_source"] = "dalle"
                         except Exception as e:
-                            st.warning(f"DALL-E thất bại, dùng ảnh thay thế: {e}")
+                            err_msg = str(e)
+                            if "billing" in err_msg.lower() or "quota" in err_msg.lower():
+                                st.warning("⚠️ Tài khoản OpenAI chưa có credit để dùng DALL-E. Đang dùng ảnh có sẵn thay thế.")
+                            else:
+                                st.warning(f"⚠️ DALL-E không khả dụng, đang dùng ảnh có sẵn thay thế.")
                             img_url = generate_illustration_search(topic_sel, skill_goal)
+                            st.session_state["ct_illus_source"] = "search"
                     else:
                         img_url = generate_illustration_search(topic_sel, skill_goal)
+                        st.session_state["ct_illus_source"] = "search"
                 st.session_state["ct_img_url"] = img_url
 
         except Exception as e:
