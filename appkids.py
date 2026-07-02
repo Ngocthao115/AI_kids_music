@@ -171,7 +171,7 @@ def generate_poem(topic, age_group, skill_goal, poem_type="tho"):
     else:
         system = (
             "Bạn là nhà văn chuyên viết truyện thiếu nhi Việt Nam. "
-            "Viết câu chuyện ngắn 300-400 từ cho trẻ mầm non: có nhân vật dễ thương (con vật, bé nhỏ), "
+            "Viết câu chuyện ngắn 200 từ cho trẻ lứa tuổi 0-3 tuổi và 300-400 từ cho trẻ lứa tuổi mẫu giáo (3-5 tuổi): có nhân vật dễ thương (con vật, bé nhỏ), "
             "tình huống gần gũi, kết thúc có thông điệp tích cực rõ ràng. "
             "Chia thành 3-4 đoạn ngắn. Ngôn ngữ đơn giản, hình ảnh sinh động. Thêm tiêu đề ở đầu."
         )
@@ -182,7 +182,7 @@ def generate_poem(topic, age_group, skill_goal, poem_type="tho"):
     return r.choices[0].message.content.strip()
 
 def generate_illustration_dalle(topic, skill_goal, age_group, style="watercolor"):
-    """Tạo hình minh họa bằng DALL-E 3."""
+    """Tạo hình minh họa bằng OpenAI Image API."""
     style_prompts = {
         "watercolor": "soft watercolor illustration, pastel colors, gentle brushstrokes",
         "cartoon": "cute cartoon style, bright vivid colors, bold outlines, 2D animation style",
@@ -197,14 +197,27 @@ def generate_illustration_dalle(topic, skill_goal, age_group, style="watercolor"
         "Bright cheerful classroom or outdoor setting. Educational and positive mood. "
         "No text, no letters, no words in the image. Safe for children. High quality."
     )
-    resp = client.images.generate(
-        model="dall-e-3",
-        prompt=prompt,
-        size="1024x1024",
-        quality="standard",
-        n=1,
-    )
-    return resp.data[0].url
+    # Thử dall-e-3 trước, fallback sang dall-e-2 nếu lỗi
+    for model_name in ["dall-e-3", "dall-e-2"]:
+        try:
+            resp = client.images.generate(
+                model=model_name,
+                prompt=prompt,
+                size="1024x1024" if model_name == "dall-e-3" else "512x512",
+                n=1,
+            )
+            return resp.data[0].url
+        except Exception as e:
+            err = str(e)
+            if "does not exist" in err or "invalid_value" in err:
+                continue  # thử model tiếp theo
+            raise  # lỗi khác thì raise luôn
+    # Nếu cả 2 đều không được, thử dùng requests trực tiếp
+    headers = {"Authorization": f"Bearer {OPENAI_API_KEY}", "Content-Type": "application/json"}
+    payload = {"model": "dall-e-2", "prompt": prompt[:900], "n": 1, "size": "512x512"}
+    r = requests.post("https://api.openai.com/v1/images/generations", headers=headers, json=payload, timeout=60)
+    r.raise_for_status()
+    return r.json()["data"][0]["url"]
 
 # Bảng từ khóa ảnh tiếng Anh cho từng chủ đề
 _TOPIC_IMAGE_KEYWORDS = {
@@ -418,7 +431,7 @@ st.title("🎵 MẦM NON STUDIO")
 st.markdown(
     '<span class="badge">🏫 Dành riêng cho Giáo viên Mầm non</span>&nbsp;'
     '<span class="badge">✨ Tạo nhạc & Thơ & Truyện sáng tạo bằng AI</span>&nbsp;'
-    '<span class="badge">🎨 Hình ảnh minh họa AI</span>',
+    '<span class="badge">🎨 Hình minh họa AI</span>',
     unsafe_allow_html=True)
 
 tab_make, tab_content, tab_poem, tab_library, tab_history, tab_settings = st.tabs([
@@ -583,10 +596,14 @@ with tab_content:
                             st.session_state["ct_illus_source"] = "dalle"
                         except Exception as e:
                             err_msg = str(e)
-                            if "billing" in err_msg.lower() or "quota" in err_msg.lower():
-                                st.warning("⚠️ Tài khoản OpenAI chưa có credit để dùng DALL-E. Đang dùng ảnh có sẵn thay thế.")
+                            if "billing" in err_msg.lower() or "quota" in err_msg.lower() or "insufficient" in err_msg.lower():
+                                st.warning("⚠️ **DALL-E lỗi billing:** Tài khoản OpenAI cần nạp thêm credit hoặc verify thẻ. Vào platform.openai.com → Billing.")
+                            elif "invalid_api_key" in err_msg.lower() or "401" in err_msg:
+                                st.warning("⚠️ **DALL-E lỗi API key:** API key không hợp lệ hoặc hết hạn. Kiểm tra lại OPENAI_API_KEY trong Secrets.")
+                            elif "content_policy" in err_msg.lower():
+                                st.warning("⚠️ **DALL-E lỗi nội dung:** Prompt bị từ chối. Đang dùng ảnh có sẵn thay thế.")
                             else:
-                                st.warning(f"⚠️ DALL-E không khả dụng, đang dùng ảnh có sẵn thay thế.")
+                                st.warning(f"⚠️ **DALL-E lỗi:** `{err_msg[:200]}` — Đang dùng ảnh có sẵn thay thế.")
                             img_url = generate_illustration_search(topic_sel, skill_goal)
                             st.session_state["ct_illus_source"] = "search"
                     else:
@@ -845,6 +862,6 @@ with tab_settings:
 
 st.markdown("""<hr style="margin:24px 0;border:none;border-top:1px solid #e6e8f5;">
 <div style="text-align:center;line-height:1.7;">
-  <div style="font-weight:800;font-size:18px;">© NHẠC AI THIẾU NHI • Dành cho Giáo viên mầm non</div>
+  <div style="font-weight:800;font-size:18px;">© MẦM NON STUDIO • Dành cho Giáo viên mầm non</div>
   <div style="font-size:15px;color:#64748b;">Facebook: Ngọc Thảo – <a href="mailto:ms.nthaotran@gmail.com">ms.nthaotran@gmail.com</a></div>
 </div>""", unsafe_allow_html=True)
