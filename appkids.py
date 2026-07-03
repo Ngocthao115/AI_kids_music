@@ -327,12 +327,43 @@ def r2_get_public_url(object_key):
         except: pass
     return ""
 
+HISTORY_R2_KEY = "history/tracks.csv"
+
+def r2_backup_history():
+    """Sao lưu tracks.csv hiện tại lên R2 để không bị mất khi Streamlit Cloud khởi động lại (ổ đĩa tạm)."""
+    if not r2_client or not os.path.exists(HISTORY_CSV): return
+    try:
+        with open(HISTORY_CSV,"rb") as f: data = f.read()
+        r2_client.put_object(Bucket=R2_BUCKET_NAME, Key=HISTORY_R2_KEY, Body=data, ContentType="text/csv; charset=utf-8")
+    except Exception as e:
+        st.warning(f"Không sao lưu được lịch sử lên R2: {e}")
+
+def r2_restore_history_if_missing():
+    """Nếu tracks.csv local không tồn tại hoặc rỗng (do ổ đĩa tạm bị reset), tải bản sao lưu mới nhất từ R2 về."""
+    if not r2_client: return
+    local_empty = (not os.path.exists(HISTORY_CSV)) or os.path.getsize(HISTORY_CSV) == 0
+    if not local_empty: return
+    try:
+        obj = r2_client.get_object(Bucket=R2_BUCKET_NAME, Key=HISTORY_R2_KEY)
+        data = obj["Body"].read()
+        if data:
+            os.makedirs(OUTPUT_DIR, exist_ok=True)
+            with open(HISTORY_CSV,"wb") as f: f.write(data)
+    except ClientError as e:
+        if e.response["Error"]["Code"] != "NoSuchKey":
+            st.warning(f"Không khôi phục được lịch sử từ R2: {e}")
+    except Exception as e:
+        st.warning(f"Không khôi phục được lịch sử từ R2: {e}")
+
 def write_history_row(row):
+    r2_restore_history_if_missing()
     ensure_history_schema()
     with open(HISTORY_CSV,"a",newline="",encoding="utf-8") as f:
         csv.DictWriter(f,fieldnames=EXPECTED_HEADER).writerow({k:row.get(k,"") for k in EXPECTED_HEADER})
+    r2_backup_history()
 
 def load_history_df_local():
+    r2_restore_history_if_missing()
     ensure_history_schema()
     try: return pd.read_csv(HISTORY_CSV, dtype=str, keep_default_na=False)
     except: return pd.DataFrame(columns=EXPECTED_HEADER)
