@@ -101,10 +101,10 @@ CHU_DE_THANG = {
     "Tháng 11 — Gia đình":{"mo_ta":"Gia đình yêu thương của bé","tu_khoa":"Ba mẹ, ông bà, anh chị em, ngôi nhà, yêu thương"},
     "Tháng 12 — Nghề nghiệp":{"mo_ta":"Các nghề nghiệp trong xã hội","tu_khoa":"Bác sĩ, cô giáo, chú công an, nông dân, kỹ sư"},
     "Tháng 1-2 — Thế giới động vật":{"mo_ta":"Các con vật gần gũi với bé","tu_khoa":"Chó mèo, gà vịt, bướm sâu, rừng núi, biển cả"},
-    "Tháng 3 — Thế giới thực vật":{"mo_ta":"Cây cối hoa lá xung quanh bé","tu_khoa":"Hoa lá, cây xanh, rau củ, mùa xuân, vườn cây"},
-    "Tháng 3-4 — Phương tiện giao thông":{"mo_ta":"Các phương tiện giao thông bé biết","tu_khoa":"Xe ô tô, xe đạp, máy bay, tàu thuyền, an toàn"},
+    "Tháng 3 — Thế giới thực vật":{"mo_ta":"Cây cối, hoa lá, các loại quả xung quanh bé","tu_khoa":"Hoa lá, cây xanh, rau củ, mùa xuân, vườn cây, quả"},
+    "Tháng 3-4 — Phương tiện giao thông":{"mo_ta":"Các phương tiện giao thông bé biết, luật lệ giao thông","tu_khoa":"Xe ô tô, xe đạp, máy bay, tàu thuyền, an toàn"},
     "Tháng 4-5 — Quê hương Đất nước":{"mo_ta":"Tình yêu quê hương đất nước Việt Nam","tu_khoa":"Quê hương, Việt Nam, cờ đỏ, sao vàng, biển đảo"},
-    "Tháng 5-6 — Mùa hè":{"mo_ta":"Mùa hè vui tươi và kỳ nghỉ hè","tu_khoa":"Nắng vàng, biển xanh, kem mát, bướm hoa, nghỉ hè"},
+    "Tháng 5-6 — HTTN-Mùa hè":{"mo_ta":"Mùa hè vui tươi và kỳ nghỉ hè, hiện tượng tự nhiên","tu_khoa":"Nắng vàng, biển xanh, kem mát, bướm hoa, nghỉ hè, gió, mặt trời, mây, mưa,"},
 }
 
 AGE_GROUPS = ["Nhà trẻ (0-3 tuổi)","Mẫu giáo bé (3-4 tuổi)","Mẫu giáo nhỡ (4-5 tuổi)","Mẫu giáo lớn (5-6 tuổi)"]
@@ -125,14 +125,13 @@ STYLE_MAP = {
 }
 
 DEFAULT_LYRICS_SYSTEM = (
-    "Bạn là chuyên gia sáng tác nhạc thiếu nhi và nhà sư phạm mầm non giàu kinh nghiệm. "
-    "Sáng tác lời bài hát cho trẻ 0-6 tuổi. Đối với trẻ lứa tuổi 0-3 tuổi, mỗi câu hát từ 5 từ, đoạn ngắn, vần điệu đơn giản. Đối với trẻ lứa tuổi 3-6 tuổi, mỗi câu hát 5-10 từ. "
+    "Bạn là một nhạc sĩ chuyên gia sáng tác nhạc thiếu nhi Việt Nam và là một chuyên gia giáo dục mầm non giàu kinh nghiệm. "
+    "Hãy sáng tác lời bài hát cho trẻ 0-6 tuổi. Đối với trẻ lứa tuổi 0-3 tuổi, mỗi câu hát từ 5 từ, đoạn ngắn, vần điệu đơn giản, dễ hát, dễ thuộc. Đối với trẻ lứa tuổi 3-6 tuổi, mỗi câu hát 5-10 từ. "
     "Ngôn ngữ giáo dục, nhân văn. Vần điệu gieo vần, rõ ràng, điệp khúc dễ nhớ. "
+    "Không lặp lại từ vô nghĩa."
     "Mặc định dùng [Verse] và [Chorus]. CHỈ dùng cấu trúc rap khi yêu cầu rõ.")
 
-# ════════════════════════════════════════════════════
-# HÀM AI
-# ════════════════════════════════════════════════════
+#HÀM AI TẠO SINH
 
 def generate_lyrics(topic, target_words=None, language="vi", verses=2, bridge=True):
     tw = ", ".join(target_words) if target_words else "Không bắt buộc"
@@ -163,18 +162,26 @@ def generate_poem(topic, age_group, skill_goal, poem_type="tho"):
     """Tạo bài thơ hoặc câu chuyện thiếu nhi có tính giáo dục."""
     if poem_type == "tho":
         system = (
-            "Bạn là nhà thơ thiếu nhi Việt Nam giàu kinh nghiệm sư phạm mầm non. "
-            "Viết bài thơ ngắn cho trẻ mầm non: đối với lứa tuổi trẻ từ 0-3 tuổi có 2-3 khổ thơ, đối với lứa tuổi trẻ từ 3-5 tuổi có 4-6 khổ thơ, mỗi khổ 4 câu, vần điệu gieo vần rõ ràng, "
-            "ngôn ngữ trong sáng, hình ảnh sinh động, dễ thuộc, mang thông điệp giáo dục tích cực. "
+            "Bạn là chuyên gia sáng tác thơ thiếu nhi Việt Nam và am hiểu, giàu kinh nghiệm trong giáo dục mầm non. "
+            "Hãy viết bài thơ phù hợp đúng độ tuổi được cung cấp sau đây: "
+            "Nếu độ tuổi là Nhà trẻ (0-3 tuổi): viết 4-8 câu, mỗi câu 3-5 từ, từ ngữ rất đơn giản, có nhịp điệu lặp lại, hình ảnh gần gũi, chỉ xoay quanh một hành động hoặc một sự vật quen thuộc. "
+            "Nếu độ tuổi là Mẫu giáo bé (3-4 tuổi): viết 8-12 câu, mỗi câu 4-6 từ, vần rõ, nội dung gần gũi, dễ đọc theo cô. "
+            "Nếu độ tuổi là Mẫu giáo nhỡ (4-5 tuổi): viết 12-16 câu, mỗi câu 5-7 từ, có hình ảnh sinh động, có thông điệp giáo dục nhẹ nhàng. "
+            "Nếu độ tuổi là Mẫu giáo lớn (5-6 tuổi): viết 12-20 câu, mỗi câu 6-8 từ, có nội dung rõ, giúp trẻ ghi nhớ kiến thức hoặc kỹ năng. "
+            "Không dùng từ khó, ngôn ngữ trong sáng, hình ảnh sinh động, dễ thuộc, mang thông điệp giáo dục tích cực, phù hợp với trẻ mầm non Việt Nam. "
             "Không có nội dung tiêu cực, bạo lực. Thêm tiêu đề bài thơ ở đầu."
         )
         user = f"Chủ đề: {topic}\nMục tiêu giáo dục: {skill_goal}\nĐộ tuổi: {age_group}\n\nViết bài thơ thiếu nhi."
     else:
         system = (
-            "Bạn là nhà văn chuyên viết truyện thiếu nhi Việt Nam. "
-            "Viết câu chuyện ngắn có từ 150-200 từ cho trẻ từ 0-3 tuổi và có 300-400 từ cho trẻ từ 3-6 tuổi: có nhân vật dễ thương (người hoặc bất kỳ sự vật nào có thể nhân hóa được(ví dụ: con vật, cây cối, quả, hiện tượng tự nhiên...), "
-            "tình huống gần gũi, kết thúc có thông điệp tích cực rõ ràng. "
-            "Chia thành 3-4 đoạn ngắn. Ngôn ngữ đơn giản, hình ảnh sinh động. Thêm tiêu đề ở đầu."
+            "Bạn là chuyên gia viết truyện thiếu nhi Việt Nam và am hiểu tâm lý trẻ mầm non. "
+            "Hãy viết câu chuyện phù hợp đúng độ tuổi được cung cấp. "
+            "Nếu độ tuổi là Nhà trẻ (0-3 tuổi): viết 80-120 từ, câu rất ngắn, 1 nhân vật chính, 1 tình huống đơn giản, nhiều hành động quen thuộc, kết thúc vui. "
+            "Nếu độ tuổi là Mẫu giáo bé (3-4 tuổi): viết 120-180 từ, có 1-2 nhân vật, tình huống gần gũi, câu ngắn, dễ hiểu. "
+            "Nếu độ tuổi là Mẫu giáo nhỡ (4-5 tuổi): viết 180-250 từ, có 2-3 nhân vật, có mở đầu - diễn biến - kết thúc rõ ràng, thông điệp tích cực. "
+            "Nếu độ tuổi là Mẫu giáo lớn (5-6 tuổi): viết 220-300 từ, có tình huống giáo dục kỹ năng hoặc nhận thức, có lời thoại ngắn, kết thúc giúp trẻ rút ra bài học. "
+            "Không dùng từ khó, không dùng tình tiết phức tạp, không bạo lực, không gây sợ hãi. "
+            "Thêm tiêu đề ở đầu. Cuối truyện thêm 2 câu hỏi gợi mở ngắn cho giáo viên hỏi trẻ."
         )
         user = f"Chủ đề: {topic}\nMục tiêu giáo dục: {skill_goal}\nĐộ tuổi: {age_group}\n\nViết câu chuyện thiếu nhi."
     r = client.chat.completions.create(model="gpt-4o-mini",
