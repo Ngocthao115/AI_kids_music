@@ -111,17 +111,32 @@ AGE_GROUPS = ["Nhà trẻ (0-3 tuổi)","Mẫu giáo bé (3-4 tuổi)","Mẫu gi
 LINH_VUC   = ["🏃 Phát triển thể chất","🧠 Phát triển nhận thức","🗣️ Phát triển ngôn ngữ","🎨 Phát triển thẩm mỹ","❤️ Phát triển tình cảm - Xã hội"]
 STYLE_DISPLAY = ["Children's Pop – Nhạc pop thiếu nhi, tươi vui, dễ hát","Playful / Upbeat Kids – Nhạc vui nhộn, hoạt bát","Nursery Rhymes – Đồng dao, hát thiếu nhi cổ điển","Educational Songs – Nhạc học tập, dạy chữ, đếm số","Children's Folk – Dân ca thiếu nhi, nhẹ nhàng","Lullaby – Nhạc ru, dễ ngủ, êm dịu","Magical / Whimsical Kids – Huyền ảo, cổ tích","Children's Jazz – Nhạc jazz nhẹ, thư giãn","Musical Story / Narrative – Nhạc kể chuyện","Children's Rock","Children's Rap"]
 STYLE_MAP = {
-    "Children's Pop":"Vietnamese children's pop for preschool. Melody bright, simple. Tempo medium-upbeat, clapping. Instruments: guitar, xylophone. Vocals: warm child voice. Mood: cheerful, safe for 3-6.",
-    "Playful / Upbeat Kids":"Upbeat playful kids music Vietnamese preschool. Tempo fast bouncy. Xylophone, ukulele, hand claps. Energetic child voice. Mood: very happy, active.",
-    "Nursery Rhymes":"Vietnamese nursery rhyme. Melody simple, repetitive. Tempo slow-medium. Soft piano, gentle bells. Warm cozy bedtime feeling.",
-    "Educational Songs":"Vietnamese educational preschool song. Call-and-response format. Simple melody, keyboard, xylophone. Clear teacher-like voice. Mood: learning, engaging.",
-    "Children's Folk":"Vietnamese children's folk (dân ca thiếu nhi). Pentatonic scale. Sáo trúc, đàn tranh, light percussion. Gentle child voice, folk style. Mood: nostalgic, countryside.",
-    "Lullaby":"Vietnamese lullaby. Very slow 60-70 BPM. Soft guitar or đàn tranh. Tender motherly voice. Mood: peaceful, sleepy, loving.",
-    "Magical / Whimsical Kids":"Magical children's song. Dreamy melody. Bells, glockenspiel, soft piano. Wonder-filled child voice. Mood: magical, imaginative.",
-    "Children's Jazz":"Soft jazz for Vietnamese preschool. Swinging melody. Soft piano, brushed drums, light bass. Fun yet child-friendly.",
-    "Musical Story / Narrative":"Vietnamese children's musical story. Dynamic melody. Strings, piano, light orchestra. Expressive storytelling voice.",
-    "Children's Rock":"Vietnamese children's rock, simple playful. Medium tempo 90-110 BPM. Clean guitar, bass, simple drums. Happy energetic safe for preschool.",
-    "Children's Rap":"Vietnamese children's rap chant. Slow flow, spoken-sung. Light hip-hop beat, soft kick, hand clap. Clear Vietnamese. Fun educational.",
+    "Children's Pop": "Vietnamese preschool children's pop, bright simple singable melody, 96-104 BPM, short phrases, xylophone, ukulele, acoustic guitar, hand claps, small kindergarten choir, light innocent childlike voices, mixed boys and girls, clear Vietnamese diction, playful classroom feeling.",
+    "Playful / Upbeat Kids": "Upbeat Vietnamese preschool action song, 105-118 BPM, bouncy rhythm, short repeated hooks, ukulele, xylophone, toy percussion, hand claps, energetic small kindergarten choir, cheerful childlike voices, easy movement pattern.",
+    "Nursery Rhymes": "Vietnamese nursery rhyme for preschool children, simple pentatonic melody, 82-96 BPM, gentle repetition, bells, xylophone, soft piano, intimate kindergarten group singing, light innocent childlike voices, warm and familiar.",
+    "Educational Songs": "Vietnamese educational preschool song, teacher-and-children call and response, 92-104 BPM, very clear diction, one learning idea at a time, short repeated melodic phrases, keyboard, xylophone, hand claps, gentle teacher lead with a small kindergarten choir answering.",
+    "Children's Folk": "Vietnamese children's folk song, gentle pentatonic melody, 82-96 BPM, sáo trúc, đàn tranh, light percussion, natural rural atmosphere, small children's group singing softly, clear Vietnamese diction, playful rather than solemn.",
+    "Lullaby": "Vietnamese preschool lullaby, 60-72 BPM, very soft simple melody, đàn tranh or acoustic guitar, gentle caregiver lead with very soft child humming only, peaceful and loving, no belting, no dramatic climax, no strong vibrato.",
+    "Magical / Whimsical Kids": "Magical Vietnamese preschool song, 82-98 BPM, dreamy but simple melody, glockenspiel, bells, soft piano, light strings, tiny playful childlike choir, wonder-filled fairy-tale mood, clear lyrics, no theatrical adult vocal.",
+    "Children's Jazz": "Light playful jazz for Vietnamese preschool, 88-102 BPM, simple swing, soft piano, brushed drums, upright bass, finger snaps, small childlike group vocal, relaxed and fun, easy melody, no complex improvisation, no mature nightclub vocal.",
+    "Musical Story / Narrative": "Vietnamese preschool musical story, expressive but simple melody, 82-100 BPM, piano, light strings, toy percussion, gentle storyteller lead with children answering key phrases, clear diction, warm picture-book atmosphere, no dramatic musical-theatre belting.",
+    "Children's Rock": "Safe playful Vietnamese children's rock, 96-110 BPM, clean guitar, bass, simple drums, short repeated chorus, lively kindergarten group vocal, innocent childlike tone, no screaming, no mature rock vocal.",
+    "Children's Rap": "Vietnamese preschool rhythm chant, 88-100 BPM, slow spoken-sung flow, soft kick, hand claps, toy percussion, teacher-and-children call and response, very clear Vietnamese syllables, playful educational delivery, no aggressive rap, no adult slang, no fast flow.",
+}
+
+SUNO_VOCAL_GUIDANCE = (
+    " Vocal direction: prioritize a small Vietnamese kindergarten choir, light innocent childlike voices, "
+    "mixed boys and girls around preschool age, natural group singing, cute but intelligible pronunciation, "
+    "short phrases and easy breathing. A gentle preschool teacher may lead short questions and the children answer. "
+    "Avoid adult pop diva, mature female soloist, powerful belting, opera, musical-theatre voice, strong vibrato, "
+    "romantic delivery, dramatic emotional climax, aggressive rap, screaming, or overly polished commercial vocals."
+)
+
+AGE_VOCAL_GUIDANCE = {
+    "Nhà trẻ (0-3 tuổi)": " Very short phrases, slow and soft pulse, caregiver lead, toddler-like group echoes.",
+    "Mẫu giáo bé (3-4 tuổi)": " Short phrases, obvious repetition, narrow-range responses, tiny cheerful kindergarten choir.",
+    "Mẫu giáo nhỡ (4-5 tuổi)": " Clear child choir, simple call-and-response, moderate range, easy clapping and movement cues.",
+    "Mẫu giáo lớn (5-6 tuổi)": " Confident kindergarten choir, clear Vietnamese words, fuller but still easy melody.",
 }
 
 DEFAULT_LYRICS_SYSTEM = (
@@ -168,9 +183,22 @@ Không ghi tiêu đề.
 Không giải thích trước hoặc sau bài hát.
 Không dùng rap trừ khi phong cách được yêu cầu là rap."""
 )
+AGE_LYRIC_RULES = {
+    "Nhà trẻ (0-3 tuổi)": "Mỗi câu 2-5 từ, chủ yếu 2-4 từ; một sự vật hoặc chuỗi hành động rất quen thuộc; tổng khoảng 8-12 dòng; lặp nhiều có chủ đích.",
+    "Mẫu giáo bé (3-4 tuổi)": "Mỗi câu 3-6 từ; câu nói đơn giản; ưu tiên con, cô, bạn và hành động quen thuộc; tổng khoảng 10-16 dòng.",
+    "Mẫu giáo nhỡ (4-5 tuổi)": "Mỗi câu 4-7 từ; hình ảnh và hành động rõ; có thể dùng từ nối rất đơn giản; tổng khoảng 12-18 dòng.",
+    "Mẫu giáo lớn (5-6 tuổi)": "Mỗi câu 5-8 từ; có trình tự hoặc kiến thức rõ nhưng vẫn là lời trẻ có thể nói; tổng khoảng 14-20 dòng.",
+}
 
 #HÀM AI TẠO SINH
-
+def build_suno_style(style_text, age_group=""):
+    """Tạo prompt Suno theo phong cách và độ tuổi; không thay đổi dữ liệu đã lưu."""
+    base = (style_text or DEFAULT_SUNOSTYLE).strip()
+    return f"{base}{AGE_VOCAL_GUIDANCE.get(age_group, '')}{SUNO_VOCAL_GUIDANCE}"[:1000]
+    
+def lyric_rules_for_age(age_group):
+    return AGE_LYRIC_RULES.get(age_group, AGE_LYRIC_RULES["Mẫu giáo bé (3-4 tuổi)"])   
+    
 def generate_lyrics(topic, target_words=None, language="vi", verses=2, bridge=True):
     tw = ", ".join(target_words) if target_words else "Không bắt buộc"
     structure = ["[Verse 1] → [Chorus]"] + [f"→ [Verse {i}] → [Chorus]" for i in range(2, verses+1)]
