@@ -298,8 +298,6 @@ def generate_teaching_guide(content, topic, skill_goal, age_group, poem_type):
         temperature=0.7, max_tokens=800)
     return r.choices[0].message.content.strip()
 
-
-
 def _suno_err(resp):
     try: msg = resp.json().get("msg") or resp.json().get("message") or resp.text
     except: msg = resp.text
