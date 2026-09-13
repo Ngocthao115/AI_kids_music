@@ -181,7 +181,7 @@ Chỉ sử dụng các nhãn:
 [Bridge]
 Không ghi tiêu đề.
 Không giải thích trước hoặc sau bài hát.
-Không dùng rap trừ khi phong cách được yêu cầu là rap."""
+Không dùng rap trừ khi phong cách được yêu cầu là rap. Nếu được yêu cầu là phong cách nhạc rap/rap thì cấy trúc nhãn như sau: [Intro] → [Rap Verse 1] → [Sung Chorus] → [Rap Verse 2] → [Sung Chorus] → [Call and Response Rap] → [Final Chorus] → [Outro]"""
 )
 AGE_LYRIC_RULES = {
     "Nhà trẻ (0-3 tuổi)": "Mỗi câu 2-5 từ, chủ yếu 2-4 từ; một sự vật hoặc chuỗi hành động rất quen thuộc; tổng khoảng 8-12 dòng; lặp nhiều có chủ đích.",
