@@ -366,6 +366,179 @@ def generate_poem(topic, age_group, skill_goal, poem_type="tho", category=""):
         temperature=0.85, max_tokens=900)
     return r.choices[0].message.content.strip()
 
+# ════════════ CHUYỂN TRUYỆN → THƠ (4 chữ / 5 chữ / lục bát) ════════════
+POEM_MODEL = get_secret("POEM_MODEL", "gpt-4o-mini")  # có thể đổi sang "gpt-4o" để luật thơ chuẩn hơn
+
+POEM_FORMS = {
+    "🌱 Thơ 4 chữ": {
+        "code": "tho_4",
+        "desc": "Mỗi câu 4 tiếng, nhịp 2/2, khổ 4 câu, vần chân câu 2 – câu 4. Rất hợp với Nhà trẻ và Mẫu giáo bé.",
+        "rule": (
+            "THỂ THƠ 4 CHỮ:\n"
+            "- Mỗi câu (mỗi dòng) có ĐÚNG 4 tiếng, không hơn không kém. Ngắt nhịp 2/2.\n"
+            "- Mỗi khổ có 4 câu, giữa các khổ có 1 dòng trống.\n"
+            "- Gieo vần chân: tiếng cuối câu 2 BẮT BUỘC vần với tiếng cuối câu 4 (cùng vần, cùng thanh bằng hoặc cùng thanh trắc). "
+            "Khuyến khích thêm vần liền (câu 1 vần câu 2, câu 3 vần câu 4). Có thể đổi vần ở mỗi khổ.\n"
+            "Ví dụ một khổ đúng luật:\nVườn nhà bé có\nBao nhiêu là hoa\nHoa hồng đỏ thắm\nNở xinh sân nhà"
+        ),
+    },
+    "🌼 Thơ 5 chữ": {
+        "code": "tho_5",
+        "desc": "Mỗi câu 5 tiếng, nhịp 2/3 hoặc 3/2, khổ 4 câu, vần chân câu 2 – câu 4. Hợp với Mẫu giáo bé, nhỡ, lớn.",
+        "rule": (
+            "THỂ THƠ 5 CHỮ (NGŨ NGÔN):\n"
+            "- Mỗi câu (mỗi dòng) có ĐÚNG 5 tiếng, không hơn không kém. Ngắt nhịp 2/3 hoặc 3/2.\n"
+            "- Mỗi khổ có 4 câu, giữa các khổ có 1 dòng trống.\n"
+            "- Gieo vần chân: tiếng cuối câu 2 BẮT BUỘC vần với tiếng cuối câu 4 (cùng vần, cùng thanh bằng hoặc cùng thanh trắc). "
+            "Khuyến khích thêm vần liền hoặc vần cách. Có thể đổi vần ở mỗi khổ.\n"
+            "Ví dụ một khổ đúng luật:\nMèo con nhà bé nuôi\nLông mượt như tơ vàng\nNgày ngày ra sân nắng\nBắt chuột thật nhẹ nhàng"
+        ),
+    },
+    "🎋 Thơ lục bát (6-8)": {
+        "code": "luc_bat",
+        "desc": "Cặp câu 6 tiếng – 8 tiếng, đúng luật bằng trắc và vần lục bát. Hợp với Mẫu giáo nhỡ, lớn.",
+        "rule": (
+            "THỂ THƠ LỤC BÁT:\n"
+            "- Các câu xen kẽ: câu lục 6 tiếng, câu bát 8 tiếng. Bài bắt đầu bằng câu lục và KẾT THÚC bằng câu bát. Không chia khổ, không có dòng trống giữa bài.\n"
+            "- Luật bằng trắc (B = thanh ngang hoặc huyền; T = thanh sắc, hỏi, ngã, nặng):\n"
+            "  + Câu lục: tiếng 2 = B, tiếng 4 = T, tiếng 6 = B.\n"
+            "  + Câu bát: tiếng 2 = B, tiếng 4 = T, tiếng 6 = B, tiếng 8 = B; tiếng 6 và tiếng 8 phải khác dấu (một tiếng thanh ngang, một tiếng thanh huyền).\n"
+            "- Luật vần: tiếng 6 câu lục vần với tiếng 6 câu bát; tiếng 8 câu bát vần với tiếng 6 câu lục tiếp theo. Vần đều là vần bằng.\n"
+            "Ví dụ đúng luật:\nSáng nay bé đến trường xinh\nChào cô, chào bạn, lớp mình vui tươi\nCô hiền như mẹ, miệng cười\nBé ngoan học hát cùng người bạn thân"
+        ),
+    },
+}
+
+POEM_LENGTH = {  # theo thứ tự AGE_GROUPS: (thơ 4/5 chữ, lục bát)
+    0: ("2 khổ (8 câu)", "2 cặp lục bát (4 câu)"),
+    1: ("2-3 khổ", "3-4 cặp lục bát (6-8 câu)"),
+    2: ("3-4 khổ", "4-6 cặp lục bát (8-12 câu)"),
+    3: ("4-5 khổ", "5-8 cặp lục bát (10-16 câu)"),
+}
+
+_TONE_MARKS = {"\u0301": "sac", "\u0300": "huyen", "\u0309": "hoi", "\u0303": "nga", "\u0323": "nang"}
+_VN_INITIALS = sorted(["ngh","ng","nh","ch","gh","gi","kh","ph","qu","th","tr",
+                       "b","c","d","đ","g","h","k","l","m","n","p","r","s","t","v","x"], key=len, reverse=True)
+_VN_VOWELS = "aăâeêioôơuưy"
+
+def _clean_word(w):
+    return re.sub(r"[^\w]", "", w).lower()
+
+def _poem_words(line):
+    return [w for w in (_clean_word(t) for t in line.split()) if w]
+
+def _tone(word):
+    for ch in unicodedata.normalize("NFD", word.lower()):
+        if ch in _TONE_MARKS: return _TONE_MARKS[ch]
+    return "ngang"
+
+def _is_bang(word):
+    return _tone(word) in ("ngang", "huyen")
+
+def _rime(word):
+    """Lấy phần vần của một tiếng (bỏ phụ âm đầu, bỏ dấu thanh)."""
+    w = "".join(ch for ch in unicodedata.normalize("NFD", _clean_word(word)) if ch not in _TONE_MARKS)
+    w = unicodedata.normalize("NFC", w)
+    if w == "gi": return "i"
+    for ini in _VN_INITIALS:
+        if w.startswith(ini) and len(w) > len(ini):
+            w = w[len(ini):]; break
+    if len(w) > 1 and w[0] in "ou" and w[1] in _VN_VOWELS:  # bỏ âm đệm: hoa -> a, tuyết -> yêt
+        w = w[1:]
+    return w
+
+def _rhymes(a, b):
+    return _rime(a) == _rime(b) and _is_bang(a) == _is_bang(b)
+
+def _poem_stanzas(poem):
+    stanzas, cur = [], []
+    for raw in poem.splitlines():
+        l = raw.strip().strip("*_#>").strip()
+        if not l:
+            if cur: stanzas.append(cur); cur = []
+            continue
+        if l.lower().startswith("tiêu đề"): continue
+        cur.append(l)
+    if cur: stanzas.append(cur)
+    return stanzas
+
+def check_poem(poem, form_code):
+    """Kiểm tra số tiếng, luật bằng trắc (lục bát) và vần. Trả về danh sách lỗi."""
+    stanzas = _poem_stanzas(poem)
+    lines = [l for st_ in stanzas for l in st_]
+    if not lines: return ["Không tìm thấy câu thơ nào."]
+    probs, W = [], [_poem_words(l) for l in lines]
+    if form_code == "luc_bat":
+        if len(lines) % 2:
+            probs.append("Bài lục bát phải kết thúc bằng câu bát (8 tiếng), số câu phải chẵn.")
+        for i, (l, w) in enumerate(zip(lines, W)):
+            need = 6 if i % 2 == 0 else 8
+            if len(w) != need:
+                probs.append(f"Câu {i+1} «{l}» có {len(w)} tiếng, cần đúng {need} tiếng."); continue
+            for p in ((2, 4, 6) if need == 6 else (2, 4, 6, 8)):
+                want_bang = (p != 4)
+                if _is_bang(w[p-1]) != want_bang:
+                    probs.append(f"Câu {i+1} «{l}»: tiếng thứ {p} «{w[p-1]}» phải là thanh {'bằng' if want_bang else 'trắc'}.")
+            if need == 8 and _tone(w[5]) == _tone(w[7]) and _is_bang(w[5]):
+                probs.append(f"Câu {i+1} «{l}»: tiếng 6 «{w[5]}» và tiếng 8 «{w[7]}» phải khác dấu (một thanh ngang, một thanh huyền).")
+        for i in range(0, len(lines) - 1, 2):
+            luc, bat = W[i], W[i+1]
+            if len(luc) == 6 and len(bat) == 8 and not _rhymes(luc[5], bat[5]):
+                probs.append(f"Vần: tiếng 6 câu {i+1} «{luc[5]}» chưa vần với tiếng 6 câu {i+2} «{bat[5]}».")
+            if i + 2 < len(lines) and len(bat) == 8 and len(W[i+2]) == 6 and not _rhymes(bat[7], W[i+2][5]):
+                probs.append(f"Vần: tiếng 8 câu {i+2} «{bat[7]}» chưa vần với tiếng 6 câu {i+3} «{W[i+2][5]}».")
+    else:
+        need = 4 if form_code == "tho_4" else 5
+        for i, (l, w) in enumerate(zip(lines, W)):
+            if len(w) != need:
+                probs.append(f"Câu {i+1} «{l}» có {len(w)} tiếng, cần đúng {need} tiếng.")
+        if all(len(g) == 4 for g in stanzas):
+            groups = stanzas
+        else:
+            probs.append("Mỗi khổ thơ cần đúng 4 câu, giữa các khổ có 1 dòng trống.")
+            groups = [lines[i:i+4] for i in range(0, len(lines), 4)]
+        for k, g in enumerate(groups, 1):
+            if len(g) == 4:
+                a, b = _poem_words(g[1]), _poem_words(g[3])
+                if a and b and not _rhymes(a[-1], b[-1]):
+                    probs.append(f"Khổ {k}: tiếng cuối câu 2 «{a[-1]}» và câu 4 «{b[-1]}» chưa vần với nhau (cần cùng vần, cùng thanh bằng/trắc).")
+    return probs
+
+def story_to_poem(story_text, form_label, age_group, note="", max_fix=2):
+    """Chuyển câu chuyện thành bài thơ đúng thể thơ; tự kiểm tra và sửa lỗi luật. Trả về (bài thơ, lỗi còn lại)."""
+    form = POEM_FORMS[form_label]
+    length = POEM_LENGTH[age_index(age_group)][1 if form["code"] == "luc_bat" else 0]
+    system = (
+        "Bạn là nhà thơ thiếu nhi Việt Nam, am hiểu sâu niêm luật, vần điệu thơ Việt và giáo dục mầm non. "
+        "Nhiệm vụ: chuyển thể câu chuyện được cung cấp thành một bài thơ thiếu nhi ĐÚNG LUẬT thể thơ yêu cầu.\n\n"
+        + form["rule"] + "\n\n"
+        "YÊU CẦU NỘI DUNG:\n"
+        "- Giữ nhân vật chính, diễn biến chính (mở đầu - diễn biến - kết thúc) và thông điệp giáo dục của câu chuyện.\n"
+        "- Từ ngữ trong sáng, gần gũi, dễ hiểu, phù hợp lứa tuổi; ưu tiên từ láy, từ tượng thanh, tượng hình; không dùng từ Hán Việt khó.\n"
+        "- Vần điệu rõ ràng, đọc lên trôi chảy, dễ thuộc; không gượng ép từ ngữ chỉ để đủ vần; không có nội dung đáng sợ, bạo lực.\n"
+        "- Trước khi trả lời, hãy tự đếm số tiếng từng câu và kiểm tra vần.\n\n"
+        "ĐỊNH DẠNG TRẢ LỜI: dòng đầu 'Tiêu đề: <tên bài thơ>', tiếp theo 1 dòng trống, sau đó là bài thơ, mỗi câu thơ một dòng. "
+        "Không đánh số, không in đậm, không giải thích hay ghi chú gì thêm."
+    )
+    user = (f"Độ tuổi: {age_group}\nĐộ dài mong muốn: {length}\n"
+            + (f"Yêu cầu thêm của giáo viên: {note}\n" if note else "")
+            + f"\nCÂU CHUYỆN:\n{story_text.strip()}\n\nHãy chuyển thành bài thơ theo đúng thể thơ đã nêu.")
+    msgs = [{"role": "system", "content": system}, {"role": "user", "content": user}]
+    def _ask(temp):
+        r = client.chat.completions.create(model=POEM_MODEL, messages=msgs, temperature=temp, max_tokens=1200)
+        return r.choices[0].message.content.strip()
+    poem = _ask(0.8)
+    probs = check_poem(poem, form["code"])
+    tries = 0
+    while probs and tries < max_fix:
+        msgs += [{"role": "assistant", "content": poem},
+                 {"role": "user", "content": "Bài thơ còn các lỗi luật sau. Hãy viết lại TOÀN BỘ bài thơ cho đúng luật, "
+                  "giữ nội dung và định dạng như cũ:\n- " + "\n- ".join(probs[:15])}]
+        poem = _ask(0.5)
+        probs = check_poem(poem, form["code"])
+        tries += 1
+    return poem, probs
+
 def generate_scenes(content, topic, poem_type, age_group):
     """Tạo kịch bản phân cảnh minh họa từ nội dung thơ/truyện."""
     if poem_type == "tho":
@@ -942,6 +1115,72 @@ with tab_content:
                     st.balloons(); st.success("✅ Đã tạo nhạc! Xem ở tab 📚 Thư viện.")
                     st.session_state["ct_converted_lyrics"] = ""
                 except Exception as e: st.error(str(e))
+
+    # ── 🔄 Chuyển câu chuyện thành bài thơ ──
+    st.divider()
+    st.markdown("### 🔄 Chuyển câu chuyện thành bài thơ")
+    st.caption("Dán câu chuyện có sẵn, hoặc lấy câu chuyện vừa tạo ở trên → chọn thể thơ → AI viết thơ và tự kiểm tra số tiếng, luật bằng trắc, vần.")
+    if st.session_state.get("ct_type_sel") == "truyen" and st.session_state.get("ct_content"):
+        if st.button("📥 Lấy câu chuyện vừa tạo ở trên", key="btn_s2p_fill"):
+            st.session_state["s2p_story"] = st.session_state["ct_content"]
+    s2p_story = st.text_area("📖 Nội dung câu chuyện", key="s2p_story", height=220,
+                             placeholder="Dán nội dung câu chuyện vào đây...")
+    c_s2p1, c_s2p2 = st.columns(2)
+    with c_s2p1:
+        s2p_form = st.selectbox("📐 Thể thơ", list(POEM_FORMS.keys()), key="s2p_form")
+    with c_s2p2:
+        s2p_age = st.selectbox("👶 Độ tuổi", AGE_GROUPS, index=age_index(st.session_state.get("ct_age_sel", "")), key="s2p_age")
+    st.caption(f"📏 {POEM_FORMS[s2p_form]['desc']}")
+    s2p_note = st.text_input("✍️ Yêu cầu thêm (tuỳ chọn)", key="s2p_note",
+                             placeholder="VD: thêm từ tượng thanh, kết bài bằng lời khuyên cho bé...")
+    if st.button("✨ Chuyển thành bài thơ", use_container_width=True, key="btn_s2p"):
+        if not s2p_story.strip():
+            st.warning("✏️ Vui lòng dán hoặc lấy nội dung câu chuyện trước.")
+        else:
+            try:
+                with st.spinner("Đang chuyển thể thành thơ và kiểm tra luật thơ..."):
+                    poem_out, poem_probs = story_to_poem(s2p_story, s2p_form, s2p_age, s2p_note)
+                st.session_state["s2p_poem"]  = poem_out
+                st.session_state["s2p_probs"] = poem_probs
+                st.session_state["s2p_meta"]  = {"form": s2p_form, "age": s2p_age}
+            except Exception as e:
+                st.error(f"Lỗi: {e}")
+
+    if st.session_state.get("s2p_poem"):
+        poem_out = st.session_state["s2p_poem"]
+        meta = st.session_state.get("s2p_meta", {})
+        m_title = re.search(r"Tiêu đề\s*:\s*(.+)", poem_out)
+        s2p_title = m_title.group(1).strip(" *") if m_title else "Bài thơ chuyển thể"
+        st.markdown(f"#### 📜 {s2p_title}")
+        st.caption(f"*{meta.get('form','')} | {meta.get('age','')}*")
+        poem_body = "\n".join(l for l in poem_out.splitlines() if not l.strip().strip('*').lower().startswith("tiêu đề")).strip()
+        st.markdown(poem_body.replace("\n", "  \n"))
+        poem_probs = st.session_state.get("s2p_probs", [])
+        if poem_probs:
+            st.warning("⚠️ AI đã tự sửa nhưng vẫn còn vài chỗ có thể chưa chuẩn luật (vần thông vẫn có thể chấp nhận). Cô nên đọc lại:\n\n- "
+                       + "\n- ".join(poem_probs[:10]))
+        else:
+            st.success("✅ Đã kiểm tra: đúng số tiếng mỗi câu"
+                       + (", đúng luật bằng trắc" if "lục bát" in meta.get("form", "") else "")
+                       + " và vần chân.")
+        c_p1, c_p2 = st.columns(2)
+        with c_p1:
+            st.download_button("⬇️ Tải bài thơ (.txt)", data=f"{s2p_title}\n\n{poem_body}".encode("utf-8"),
+                               file_name=f"{ascii_slugify(s2p_title)}_tho.txt", mime="text/plain",
+                               use_container_width=True, key="dl_s2p")
+        with c_p2:
+            if st.button("💾 Lưu bài thơ vào thư viện", use_container_width=True, key="btn_s2p_save"):
+                try:
+                    save_content_to_library(
+                        title=s2p_title, topic=s2p_title,
+                        skill_goal=f"Chuyển thể từ câu chuyện ({meta.get('form','')})",
+                        age_group=meta.get("age", ""), content_type="tho",
+                        content_text=poem_out, category="🔄 Chuyển từ truyện")
+                    st.success("✅ Đã lưu vào thư viện!")
+                except Exception as e:
+                    st.error(f"Lỗi: {e}")
+        st.caption("💡 Muốn phổ nhạc bài thơ này? Sao chép bài thơ sang tab **📖 Thơ/Truyện → Nhạc**.")
+
 
 
 # ════════════ TAB 3: THƠ/TRUYỆN → NHẠC ════════════
