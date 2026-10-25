@@ -92,7 +92,95 @@ CONTENT_THEMES = {
         "Ngày và đêm": "Mặt trời, mặt trăng, ngày đêm, buổi sáng tối",
         "Con số và phép đếm": "Nhiều ít, to nhỏ, cao thấp, so sánh số lượng",
     },
+    "👫 Bạn bè": {
+        "Bạn mới ở lớp": "Làm quen, giới thiệu tên mình, rủ bạn cùng chơi, hòa nhập lớp học",
+        "Cùng chơi với bạn": "Chơi đoàn kết, chờ đến lượt, tuân thủ luật chơi đơn giản",
+        "Giúp đỡ bạn": "Nhận biết khi bạn cần giúp, an ủi bạn khi bạn ngã hoặc buồn",
+        "Giận nhau rồi làm lành": "Giải quyết mâu thuẫn bằng lời nói, xin lỗi và làm lành với bạn",
+        "Bạn khác mình": "Tôn trọng sự khác biệt về ngoại hình, sở thích; không chê bai, trêu chọc bạn",
+        "Sinh nhật của bạn": "Chia vui, chúc mừng, tặng quà, cảm xúc vui vẻ khi ở bên bạn",
+    },
+    "👩‍🏫 Thầy cô & Trường lớp": {
+        "Ngày đầu đến lớp": "Làm quen trường lớp, bớt lo lắng khi xa bố mẹ, thích đi học",
+        "Cô giáo như mẹ hiền": "Yêu quý, kính trọng cô giáo, cảm nhận sự chăm sóc của cô",
+        "Lắng nghe cô dặn": "Chú ý lắng nghe, giơ tay khi muốn nói, làm theo hướng dẫn của cô",
+        "Các cô bác trong trường": "Biết ơn cô cấp dưỡng, bác bảo vệ, cô y tế, những người chăm sóc bé",
+        "Giữ gìn lớp học": "Giữ lớp sạch đẹp, cất đồ đúng chỗ, bảo vệ đồ dùng chung",
+        "Ngày Nhà giáo 20/11": "Bày tỏ tình cảm với thầy cô, làm thiệp, hát tặng cô",
+    },
+    "👨‍👩‍👧 Gia đình": {
+        "Gia đình của bé": "Nhận biết các thành viên trong gia đình, tình yêu thương gia đình",
+        "Ông bà yêu quý": "Kính yêu, lễ phép, quan tâm và chăm sóc ông bà",
+        "Anh chị em trong nhà": "Nhường nhịn em nhỏ, yêu thương, giúp đỡ anh chị em",
+        "Bé giúp bố mẹ việc nhà": "Làm việc nhà vừa sức: nhặt rau, lau bàn, xếp dép, tưới cây",
+        "Bữa cơm gia đình": "Mời cơm, quây quần, cảm nhận sự ấm áp bên gia đình",
+        "Ngôi nhà của bé": "Các phòng, đồ dùng trong nhà, giữ nhà sạch đẹp và an toàn",
+    },
+    "👷 Nghề nghiệp": {
+        "Bác sĩ": "Công việc của bác sĩ, không sợ đi khám bệnh, biết ơn bác sĩ",
+        "Bác nông dân": "Trồng lúa, trồng rau, biết ơn người làm ra hạt gạo, quý trọng thức ăn",
+        "Chú lính cứu hỏa": "Dập lửa, cứu người, lòng dũng cảm; bé không nghịch lửa",
+        "Chú công an giao thông": "Giữ trật tự giao thông, bé đi đường an toàn, chấp hành đèn tín hiệu",
+        "Cô lao công": "Giữ đường phố sạch đẹp, bé bỏ rác đúng nơi, biết ơn người lao động",
+        "Chú thợ xây": "Xây nhà, dụng cụ xây dựng, sự chăm chỉ, cẩn thận",
+        "Bé mơ ước làm nghề gì": "Biết về nhiều nghề, tự tin nói về ước mơ, yêu quý mọi nghề",
+    },
+    "🐾 Động vật": {
+        "Vật nuôi trong nhà": "Chó, mèo, gà, vịt: đặc điểm, tiếng kêu, cách chăm sóc",
+        "Con vật và con của nó": "Gà mẹ - gà con, mèo mẹ - mèo con: gọi tên con non, tình mẫu tử",
+        "Động vật trong rừng": "Voi, hổ, khỉ, hươu: đặc điểm, nơi sống, vận động mô phỏng",
+        "Động vật dưới nước": "Cá, tôm, cua, rùa: nơi sống, cách di chuyển, giữ nguồn nước sạch",
+        "Côn trùng và chim": "Ong, bướm, kiến, chim: đặc điểm, ích lợi, quan sát thiên nhiên",
+        "Thương yêu con vật": "Không trêu chọc, đánh đập con vật; cho ăn, chăm sóc nhẹ nhàng",
+    },
+    "🌍 Khám phá thế giới xung quanh": {
+        "Năm giác quan của bé": "Mắt nhìn, tai nghe, mũi ngửi, lưỡi nếm, tay sờ; bảo vệ giác quan",
+        "Cây xanh quanh bé": "Các bộ phận của cây, cây cần nước và ánh sáng, chăm sóc cây",
+        "Hoa và quả": "Tên gọi, màu sắc, mùi vị các loại hoa quả quen thuộc",
+        "Nước quanh ta": "Nước có ở đâu, ích lợi của nước, tiết kiệm nước",
+        "Mưa, nắng, gió": "Hiện tượng thời tiết, trang phục phù hợp, giữ gìn sức khỏe",
+        "Phương tiện giao thông": "Xe đạp, ô tô, tàu thuyền, máy bay: tên gọi, nơi hoạt động, âm thanh",
+        "Bầu trời và vũ trụ": "Mặt trời, mặt trăng, các vì sao; khơi gợi trí tò mò khám phá",
+        "Bảo vệ môi trường": "Bỏ rác đúng nơi, phân loại rác đơn giản, yêu thiên nhiên",
+    },
+    "🛡️ An toàn cho bé": {
+        "Không đi theo người lạ": "Không nhận quà, không đi theo người lạ, báo ngay cho cô và bố mẹ",
+        "Tránh xa ổ điện, bếp lửa": "Nhận biết đồ vật nguy hiểm trong nhà, tránh xa, nhờ người lớn",
+        "Đi đường an toàn": "Nắm tay người lớn, đi bên phải, đội mũ bảo hiểm, đèn tín hiệu",
+        "An toàn khi chơi nước": "Không chơi gần ao hồ, giếng; chỉ xuống nước khi có người lớn",
+    },
+    "🎉 Lễ hội & Quê hương": {
+        "Tết Nguyên đán": "Phong tục ngày Tết, chúc Tết, lì xì, bánh chưng, hoa đào hoa mai",
+        "Tết Trung thu": "Rước đèn, phá cỗ, bánh trung thu, niềm vui đêm trăng rằm",
+        "Ngày 8/3 tặng bà, mẹ, cô": "Bày tỏ tình cảm, làm quà tặng bà, mẹ, cô giáo",
+        "Quê hương em": "Cảnh đẹp quê hương, đặc sản, tình yêu quê hương đất nước",
+    },
 }
+
+CUSTOM_THEME_LABEL = "✏️ Tự nhập chủ đề"
+
+# Chủ đề chỉ hiển thị từ lứa tuổi tối thiểu (0 = Nhà trẻ, 1 = MG bé, 2 = MG nhỡ, 3 = MG lớn)
+TOPIC_MIN_AGE = {
+    "Chữ cái tiếng Việt": 2, "Con số và phép đếm": 2, "Các mùa trong năm": 1,
+    "Giận nhau rồi làm lành": 1, "Bạn khác mình": 2, "Sinh nhật của bạn": 1,
+    "Các cô bác trong trường": 1, "Ngày Nhà giáo 20/11": 1, "Giữ gìn lớp học": 1,
+    "Bữa cơm gia đình": 1, "Ngôi nhà của bé": 1,
+    "Chú công an giao thông": 1, "Cô lao công": 1, "Chú thợ xây": 2, "Bé mơ ước làm nghề gì": 2,
+    "Động vật trong rừng": 1, "Động vật dưới nước": 1, "Côn trùng và chim": 1,
+    "Năm giác quan của bé": 1, "Nước quanh ta": 1, "Mưa, nắng, gió": 1,
+    "Bầu trời và vũ trụ": 2, "Bảo vệ môi trường": 2,
+    "Không đi theo người lạ": 1, "Đi đường an toàn": 1, "An toàn khi chơi nước": 1,
+    "Ngày 8/3 tặng bà, mẹ, cô": 1, "Quê hương em": 2,
+}
+
+# Cách khai thác cùng một chủ đề theo từng lứa tuổi (theo thứ tự AGE_GROUPS)
+AGE_CONTENT_FOCUS = [
+    "Chỉ khai thác 1 khía cạnh cụ thể, cảm nhận trực tiếp (gọi tên, tiếng kêu, màu sắc, một hành động quen thuộc); dùng nhiều từ tượng thanh, tượng hình, điệp từ; nhân vật là bé, mẹ, cô, con vật gần gũi.",
+    "Khai thác 1-2 đặc điểm nổi bật dễ quan sát, gắn với sinh hoạt hằng ngày ở nhà và ở lớp; thông điệp đơn giản dạng 'bé biết...', 'bé làm được...'.",
+    "Mô tả đặc điểm, công dụng, mối quan hệ đơn giản (con vật sống ở đâu, ăn gì; nghề làm gì, dùng dụng cụ gì); có một tình huống nhỏ để nhân vật thể hiện hành vi tốt.",
+    "Có thể so sánh, phân loại, nêu nguyên nhân - kết quả đơn giản; khuyến khích trẻ suy nghĩ, đặt câu hỏi, bày tỏ ý kiến; lồng nhẹ nhàng kiến thức chuẩn bị vào lớp 1.",
+]
+
 
 # ── Chủ đề tháng GDMN ──
 CHU_DE_THANG = {
@@ -224,8 +312,31 @@ def poem_to_song(poem_text, age_group="Mẫu giáo (3-6 tuổi)", style_hint="")
         temperature=0.8, max_tokens=800)
     return r.choices[0].message.content.strip()
 
-def generate_poem(topic, age_group, skill_goal, poem_type="tho"):
+def age_index(age_group):
+    return AGE_GROUPS.index(age_group) if age_group in AGE_GROUPS else 1
+
+def age_focus(age_group):
+    return AGE_CONTENT_FOCUS[age_index(age_group)]
+
+def topics_for_age(topics, age_group):
+    """Lọc các chủ đề phù hợp với lứa tuổi đã chọn."""
+    idx = age_index(age_group)
+    return [t for t in topics if TOPIC_MIN_AGE.get(t, 0) <= idx]
+
+TOPIC_RULES = (
+    "Bám sát chủ đề và mục tiêu giáo dục, khai thác chủ đề đúng mức độ nhận thức của lứa tuổi theo phần 'Cách khai thác chủ đề'. "
+    "Với chủ đề động vật, nghề nghiệp, khám phá thế giới xung quanh: kiến thức phải đúng, khoa học, đơn giản (có thể nhân hóa nhưng không sai đặc điểm thật của sự vật). "
+    "Với chủ đề bạn bè, thầy cô, gia đình: nhấn mạnh tình cảm và hành vi đẹp cụ thể mà trẻ làm được; hình ảnh gia đình ấm áp, gần gũi, không khiến trẻ có hoàn cảnh gia đình khác cảm thấy bị bỏ rơi. "
+    "Với chủ đề an toàn: nêu rõ hành động đúng trẻ cần làm, giọng nhẹ nhàng, không gây sợ hãi."
+)
+
+def generate_poem(topic, age_group, skill_goal, poem_type="tho", category=""):
     """Tạo bài thơ hoặc câu chuyện thiếu nhi có tính giáo dục."""
+    topic_context = (
+        (f"Nhóm chủ đề: {category}\n" if category else "")
+        + f"Chủ đề: {topic}\nMục tiêu giáo dục: {skill_goal}\nĐộ tuổi: {age_group}\n"
+        + f"Cách khai thác chủ đề cho lứa tuổi này: {age_focus(age_group)}"
+    )
     if poem_type == "tho":
         system = (
             "Bạn là chuyên gia sáng tác thơ thiếu nhi Việt Nam và am hiểu, giàu kinh nghiệm trong giáo dục mầm non. "
@@ -237,7 +348,7 @@ def generate_poem(topic, age_group, skill_goal, poem_type="tho"):
             "Không dùng từ khó, ngôn ngữ trong sáng, hình ảnh sinh động, dễ thuộc, mang thông điệp giáo dục tích cực, phù hợp với trẻ mầm non Việt Nam. "
             "Không có nội dung tiêu cực, bạo lực. Thêm tiêu đề bài thơ ở đầu."
         )
-        user = f"Chủ đề: {topic}\nMục tiêu giáo dục: {skill_goal}\nĐộ tuổi: {age_group}\n\nViết bài thơ thiếu nhi."
+        user = topic_context + "\n\nViết bài thơ thiếu nhi."
     else:
         system = (
             "Bạn là chuyên gia viết truyện thiếu nhi Việt Nam và am hiểu tâm lý trẻ mầm non. "
@@ -249,9 +360,9 @@ def generate_poem(topic, age_group, skill_goal, poem_type="tho"):
             "Không dùng từ khó, không dùng tình tiết phức tạp, không bạo lực, không gây sợ hãi. "
             "Thêm tiêu đề ở đầu. Cuối truyện thêm 2 câu hỏi gợi mở ngắn cho giáo viên hỏi trẻ."
         )
-        user = f"Chủ đề: {topic}\nMục tiêu giáo dục: {skill_goal}\nĐộ tuổi: {age_group}\n\nViết câu chuyện thiếu nhi."
+        user = topic_context + "\n\nViết câu chuyện thiếu nhi."
     r = client.chat.completions.create(model="gpt-4o-mini",
-        messages=[{"role":"system","content":system},{"role":"user","content":user}],
+        messages=[{"role":"system","content":system + " " + TOPIC_RULES},{"role":"user","content":user}],
         temperature=0.85, max_tokens=900)
     return r.choices[0].message.content.strip()
 
@@ -647,22 +758,37 @@ with tab_content:
     st.markdown("### 📝 Tạo Thơ & Câu Chuyện Giáo Dục Mầm Non")
     st.info("💡 AI tạo bài thơ hoặc câu chuyện **mang tính giáo dục** — kèm **kịch bản phân cảnh minh họa** và **hướng dẫn dạy học** chi tiết cho giáo viên.")
 
+    c_age, c_type = st.columns(2)
+    with c_age:
+        ct_age  = st.selectbox("👶 Độ tuổi", AGE_GROUPS, index=1, key="ct_age")
+    with c_type:
+        ct_type = st.radio("📄 Loại nội dung", ["🎭 Bài thơ", "📖 Câu chuyện"], horizontal=True, key="ct_type")
+    st.caption(f"🧒 Cách khai thác chủ đề cho lứa tuổi này: *{age_focus(ct_age)}*")
+
     c_cat, c_topic_sel = st.columns([1,2])
     with c_cat:
-        category = st.selectbox("📂 Nhóm chủ đề", list(CONTENT_THEMES.keys()), key="ct_category")
+        category = st.selectbox("📂 Nhóm chủ đề", list(CONTENT_THEMES.keys()) + [CUSTOM_THEME_LABEL], key="ct_category")
     with c_topic_sel:
-        topics_in_cat = list(CONTENT_THEMES[category].keys())
-        topic_sel = st.selectbox("🎯 Chủ đề cụ thể", topics_in_cat, key="ct_topic")
+        if category == CUSTOM_THEME_LABEL:
+            topic_sel = st.text_input("🎯 Chủ đề cụ thể", key="ct_custom_topic",
+                                      placeholder="VD: Chú ốc sên chậm chạp, Bé đi siêu thị...").strip()
+        else:
+            all_topics = list(CONTENT_THEMES[category].keys())
+            if st.session_state.get("ct_show_all", False):
+                topics_in_cat = all_topics
+            else:
+                topics_in_cat = topics_for_age(all_topics, ct_age) or all_topics
+            topic_sel = st.selectbox("🎯 Chủ đề cụ thể", topics_in_cat, key="ct_topic")
 
-    skill_goal = CONTENT_THEMES[category][topic_sel]
+    if category == CUSTOM_THEME_LABEL:
+        custom_goal = st.text_input("🎯 Mục tiêu giáo dục (tuỳ chọn)", key="ct_custom_goal",
+                                    placeholder="VD: Trẻ biết kiên trì, không bỏ cuộc").strip()
+        skill_goal = custom_goal or f"Giáo dục trẻ mầm non qua chủ đề: {topic_sel}"
+    else:
+        st.checkbox("Hiện tất cả chủ đề (kể cả chủ đề dành cho trẻ lớn hơn)", key="ct_show_all")
+        skill_goal = CONTENT_THEMES[category][topic_sel]
     st.caption(f"🎯 Mục tiêu giáo dục: *{skill_goal}*")
-
     st.divider()
-    c1, c2 = st.columns(2)
-    with c1:
-        ct_age  = st.selectbox("👶 Độ tuổi", AGE_GROUPS, index=1, key="ct_age")
-    with c2:
-        ct_type = st.radio("📄 Loại nội dung", ["🎭 Bài thơ", "📖 Câu chuyện"], horizontal=True, key="ct_type")
 
     ct_options = st.multiselect(
         "✅ Tạo thêm (tuỳ chọn)",
@@ -673,11 +799,14 @@ with tab_content:
 
     btn_gen_content = st.button("✨ Tạo nội dung", use_container_width=True, key="btn_gen_content")
 
-    if btn_gen_content:
+    if btn_gen_content and not topic_sel:
+        st.warning("✏️ Vui lòng nhập chủ đề cụ thể trước khi tạo nội dung.")
+    elif btn_gen_content:
         poem_type = "tho" if "Bài thơ" in ct_type else "truyen"
         try:
             with st.spinner("Đang sáng tác nội dung..."):
-                content_ai = generate_poem(topic_sel, ct_age, skill_goal, poem_type)
+                content_ai = generate_poem(topic_sel, ct_age, skill_goal, poem_type,
+                                           category="" if category == CUSTOM_THEME_LABEL else category)
             st.session_state["ct_content"]    = content_ai
             st.session_state["ct_topic_name"] = topic_sel
             st.session_state["ct_skill_goal"] = skill_goal
@@ -1039,5 +1168,5 @@ with tab_settings:
 st.markdown("""<hr style="margin:24px 0;border:none;border-top:1px solid #e6e8f5;">
 <div style="text-align:center;line-height:1.7;">
   <div style="font-weight:800;font-size:18px;">© MẦM NON STUDIO • Dành cho Giáo viên mầm non</div>
-  <div style="font-size:15px;color:#64748b;">Facebook: Ngọc Thảo – <a href="mailto:ms.nthaotran@gmail.com">ms.nthaotran@gmail.com</a></div>
+  <div style="font-size:15px;color:#64748b;"><a href="mailto:ms.nthaotran@gmail.com">ms.nthaotran@gmail.com</a></div>
 </div>""", unsafe_allow_html=True)
